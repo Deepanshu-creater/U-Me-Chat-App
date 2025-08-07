@@ -1,0 +1,133 @@
+/* Feedback Container */
+.feedback-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 10px;
+  background-color: #f9f0ff;
+  box-shadow: 0 4px 12px rgba(106, 33, 165, 0.1);
+}
+
+.feedback-title {
+  color: #6a21a5;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.feedback-subtitle {
+  color: #8e44ad;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+/* Feedback Form Styles */
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.feedback-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.feedback-form-group label {
+  color: #6a21a5;
+  font-weight: 600;
+}
+
+.feedback-form-group input[type="text"],
+.feedback-form-group input[type="email"],
+.feedback-form-group textarea {
+  padding: 0.8rem;
+  border: 2px solid #d2b4de;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.feedback-form-group input[type="text"]:focus,
+.feedback-form-group input[type="email"]:focus,
+.feedback-form-group textarea:focus {
+  outline: none;
+  border-color: #9b59b6;
+  box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.2);
+}
+
+/* Rating Options */
+.feedback-rating-options {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.feedback-rating-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  background-color: #e8daef;
+  transition: all 0.3s;
+}
+
+.feedback-rating-option:hover {
+  background-color: #d2b4de;
+}
+
+.feedback-rating-option input[type="radio"] {
+  accent-color: #6a21a5;
+  cursor: pointer;
+}
+
+/* Checkbox Group */
+.feedback-checkbox-group {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.feedback-checkbox-group input[type="checkbox"] {
+  accent-color: #6a21a5;
+  width: 1.2rem;
+  height: 1.2rem;
+  cursor: pointer;
+}
+
+/* Submit Button */
+.feedback-submit-btn {
+  padding: 0.8rem 1.5rem;
+  background-color: #6a21a5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.feedback-submit-btn:hover {
+  background-color: #8e44ad;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .feedback-container {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .feedback-rating-options {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .feedback-rating-option {
+    justify-content: center;
+  }
+}
