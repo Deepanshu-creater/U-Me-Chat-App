@@ -10,6 +10,17 @@ const multer = require("multer");
 const { v2: cloudinary } = require("cloudinary");
 require("dotenv").config();
 
+/* ======================== *
+ *       APP SETUP         *
+ * ======================== */
+const app = express();
+const server = http.createServer(app);
+app.use(cors({
+  origin: "https://u-me-chat-app.vercel.app/", // your deployed frontend URL
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
+app.use(express.json());
 
 /* ======================== *
  *      CONTROLLERS        *
@@ -37,17 +48,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-/* ======================== *
- *       APP SETUP         *
- * ======================== */
-const app = express();
-const server = http.createServer(app);
-app.use(cors({
-  origin: "https://u-me-chat-app.vercel.app/", // your deployed frontend URL
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
-app.use(express.json());
 // Multer setup for file uploads (memory storage)
 const upload = multer({ 
   storage: multer.memoryStorage(),
