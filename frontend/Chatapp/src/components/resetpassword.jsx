@@ -5,6 +5,7 @@ import axios from 'axios';
 import './login.css';
 
 export default function ResetPassword() {
+  const SOCKET_URL = "https://u-me-chat-app.onrender.com"
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState('');
@@ -31,7 +32,7 @@ export default function ResetPassword() {
   }
 
   try {
-    const response = await axios.post('http://localhost:3001/reset-password', {
+    const response = await axios.post(`${SOCKET_URL}/reset-password`, {
       token: searchParams.get('token'), // Make sure token is properly passed
       newPassword // Match backend expected field name
     }, {

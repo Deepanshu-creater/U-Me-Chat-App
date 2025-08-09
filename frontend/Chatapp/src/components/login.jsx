@@ -10,6 +10,7 @@ export default function Login() {
     username: '',
     password: ''
   });
+  const SOCKET_URL = "https://u-me-chat-app.onrender.com";
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,7 +40,7 @@ export default function Login() {
     setIsSubmitting(true);
     
     // Make API call only if validation passes
-    axios.post('http://localhost:3001/login', formData)
+    axios.post(`${SOCKET_URL}/login`, formData)
       .then(response => {
         console.log("Login successful:", response.data);
 
@@ -81,7 +82,7 @@ export default function Login() {
   setErrors({});
 
   try {
-    const response = await axios.post('http://localhost:3001/forgot-password', {
+    const response = await axios.post(`${SOCKET_URL}/forgot-password`, {
       username: formData.username
     });
     

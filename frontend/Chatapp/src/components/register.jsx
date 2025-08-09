@@ -13,6 +13,7 @@ export default function Register() {
     password: '',
     confirmPassword: '',
   });
+  const SOCKET_URL = "https://u-me-chat-app.onrender.com";
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -98,7 +99,7 @@ const handleSubmit = (e) => {
 
     // 3. API CALL ONLY RUNS IF VALIDATION PASSES
     try {
-      axios.post('http://localhost:3001/register', formData)
+      axios.post(`${SOCKET_URL}/register`, formData)
         .then(response => {
           console.log("Registration successful:", response.data);
           localStorage.setItem("username", response.data.user.username);

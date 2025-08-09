@@ -9,7 +9,7 @@ import "./chat.css";
 
 export default function ChatApp() {
   /* ====================== Setup & State ====================== */
-  const SOCKET_URL = "http://localhost:3001";
+  const SOCKET_URL = "https://u-me-chat-app.onrender.com";
   const currentUser = localStorage.getItem("username");
   const socket = useRef(null);
 
@@ -689,7 +689,7 @@ const answerCall = async () => {
         if (!msg.self && userLang !== senderLang) {
           try {
             console.log("Translating from", senderLang, "to", userLang);
-            const response = await axios.post("http://localhost:3001/translate", {
+            const response = await axios.post(`${SOCKET_URL}/translate`, {
               text: msg.text,
               sourceLang: senderLang,
               targetLang: userLang
