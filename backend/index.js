@@ -626,8 +626,17 @@ socket.on("file_message", async (fileData) => {
 /* ============================ *
  *   CONNECT TO MONGODB & RUN  *
  * ============================ */
-mongoose.connect(process.env.DBURL).then(() => {
-    console.log("Connected to MongoDB");
-    server.listen(3001, () => console.log("Server running on port 3001"));
+const PORT = process.env.PORT || 3001;
+
+mongoose.connect(process.env.DBURL)
+  .then(() => {
+    console.log("✅ Connected to MongoDB");
+
+    server.listen(PORT, () => {
+      console.log(` Server running on port ${PORT}`);
+    });
   })
-  .catch(err => console.error("MongoDB connection error:", err));
+  .catch(err => {
+    console.error(" MongoDB connection error:", err);
+    process.exit(1); // Exit if DB connection fails
+  });

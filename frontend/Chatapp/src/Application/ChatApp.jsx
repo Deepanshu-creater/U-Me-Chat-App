@@ -442,7 +442,10 @@ const handleFileUpload = async (event) => {
   const pcConfig = {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' }
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun3.l.google.com:19302' },
+      { urls: 'stun:stun4.l.google.com:19302' }
     ]
   };
 
@@ -464,6 +467,31 @@ const handleFileUpload = async (event) => {
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = event.streams[0];
       }
+    };
+
+    peerConnection.current.onconnectionstatechange = () => {
+      const state = peerConnection.current.connectionState;
+      console.log('Peer connection state:', state);
+      switch (state) {
+        case 'connected':
+          setCallStatus('Connected');
+          break;
+        case 'disconnected':
+        case 'failed':
+          setCallStatus(state === 'failed' ? 'Call failed' : 'Call disconnected');
+          setTimeout(cleanupCall, 2000);
+          break;
+        case 'closed':
+          cleanupCall();
+          break;
+        default:
+          // 'connecting' or 'new' can be handled if needed
+          break;
+      }
+    };
+
+    peerConnection.current.oniceconnectionstatechange = () => {
+      console.log('ICE connection state:', peerConnection.current.iceConnectionState);
     };
 
     // Add local stream tracks to peer connection
@@ -511,43 +539,47 @@ const handleFileUpload = async (event) => {
     }
   };
 
-  const answerCall = async () => {
-    try {
-      setCallStatus('Connecting...');
-      
-      const constraints = {
-        audio: true,
-        video: incomingCall.type === 'video'
-      };
+const answerCall = async () => {
+  try {
+    setCallStatus('Connecting...');
+    
+    const constraints = {
+      audio: true,
+      video: incomingCall.type === 'video'
+    };
 
-      localStream.current = await navigator.mediaDevices.getUserMedia(constraints);
-      
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = localStream.current;
-      }
-
-      createPeerConnection();
-
-      await peerConnection.current.setRemoteDescription(incomingCall.offer);
-      
-      const answer = await peerConnection.current.createAnswer();
-      await peerConnection.current.setLocalDescription(answer);
-
-      socket.current.emit('webrtc_answer', {
-        to: incomingCall.from,
-        answer: answer
-      });
-
-      setIsInCall(true);
-      setIsVideoCall(incomingCall.type === 'video');
-      setIncomingCall(null);
-      setCallStatus('Connected');
-    } catch (error) {
-      toast.error('Error answering call:', error);
-      rejectCall();
+    localStream.current = await navigator.mediaDevices.getUserMedia(constraints);
+    
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject = localStream.current;
     }
-  };
 
+    createPeerConnection();
+
+    await peerConnection.current.setRemoteDescription(incomingCall.offer);
+    
+    const answer = await peerConnection.current.createAnswer();
+    await peerConnection.current.setLocalDescription(answer);
+
+    socket.current.emit('webrtc_answer', {
+      to: incomingCall.from,
+      answer: answer
+    });
+
+    setIsInCall(true);
+    setIsVideoCall(incomingCall.type === 'video');
+    setIncomingCall(null);
+  } catch (error) {
+    console.error('Error answering call:', error);
+    let msg = `Error answering call: ${error.message}`;
+    if (error.name === 'NotReadableError') {
+      msg = 'Camera or microphone is in use by another application. Please close it and retry.';
+    }
+    toast.error(msg);
+    setCallStatus(''); // Explicitly clear status on failure
+    rejectCall();
+  }
+};
   const rejectCall = () => {
     if (incomingCall) {
       socket.current.emit('webrtc_reject_call', {
@@ -729,7 +761,6 @@ const handleFileUpload = async (event) => {
       socket.current.on('webrtc_answer', async ({ from, answer }) => {
         if (peerConnection.current) {
           await peerConnection.current.setRemoteDescription(answer);
-          setCallStatus('Connected');
         }
       });
 
