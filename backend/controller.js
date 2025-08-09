@@ -109,9 +109,7 @@ const forgotPassword = async (req, res) => {
     });
 
     // 5. Send reset email
-    const resetUrl = 'https://u-me-chat-app.vercel.app/reset-password?token=${encodeURIComponent(resetTokenRaw)}';
-
-
+    const resetUrl = `https://u-me-chat-app.vercel.app/reset-password?token=${encodeURIComponent(resetTokenRaw)}`;
        const transporter = nodemailer.createTransport({
       service: 'gmail', // or your email provider
       auth: {
