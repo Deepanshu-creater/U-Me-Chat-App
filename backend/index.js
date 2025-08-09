@@ -42,7 +42,11 @@ cloudinary.config({
  * ======================== */
 const app = express();
 const server = http.createServer(app);
-app.use(cors());
+app.use(cors({
+  origin: "https://u-me-chat-app.vercel.app/", // your deployed frontend URL
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
 // Multer setup for file uploads (memory storage)
 const upload = multer({ 
