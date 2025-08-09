@@ -15,7 +15,12 @@ require("dotenv").config();
  * ======================== */
 const app = express();
 const server = http.createServer(app);
-app.use(cors());
+const corsOptions = {
+  origin: 'https://u-me-chat-app.vercel.app', // No trailing slash here
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,  // If your frontend sends cookies or auth headers
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 /* ======================== *
