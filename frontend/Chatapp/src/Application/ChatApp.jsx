@@ -12,7 +12,7 @@ export default function ChatApp() {
   const SOCKET_URL = "http://localhost:3001";
   const currentUser = localStorage.getItem("username");
   const socket = useRef(null);
-
+  
   const [isConnected, setIsConnected] = useState(false);
   const [people, setPeople] = useState([]);
   const [search, setSearch] = useState("");
