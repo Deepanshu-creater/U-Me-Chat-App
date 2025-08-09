@@ -1000,191 +1000,93 @@
 
 /* ================ RESPONSIVE DESIGN ================ */
 /* Phone-specific styles (max-width: 768px) */
+/* ================== MOBILE RESPONSIVE STYLES ================== */
+/* General mobile styles (applies to all mobile devices) */
 @media screen and (max-width: 768px) {
   .chat-app-layout {
     flex-direction: column;
     height: 100vh;
-    overflow: hidden;
+    height: -webkit-fill-available;
+    min-height: -webkit-fill-available;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   .chat-app-sidebar {
     width: 100%;
-    height: auto;
-    max-height: 30vh;
+    height: 35vh;
+    max-height: 35vh;
     border-right: none;
     border-bottom: 1px solid var(--border-color);
-    overflow-y: auto;
+    padding-bottom: env(safe-area-inset-bottom);
+    margin-top: 0;
   }
 
   .chat-app-main {
     width: 100%;
-    height: calc(70vh - 60px);
+    height: calc(65vh - 50px); /* Account for mobile header */
+    margin-top: 0;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
-  .chat-app-profile-section {
-    padding: 10px;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .chat-app-profile-header {
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .chat-app-profile-avatar-container {
-    margin-right: 10px;
-    margin-bottom: 0;
-  }
-
-  .chat-app-profile-avatar {
-    width: 40px;
-    height: 40px;
-  }
-
-  .chat-app-username-large {
-    font-size: 1rem;
-  }
-
-  .chat-app-profile-actions {
-    position: absolute;
-    top: 60px;
-    right: 10px;
-    z-index: 100;
-  }
-
-  .chat-app-search {
-    margin: 10px;
-    width: calc(100% - 20px);
-  }
-
-  .chat-app-user-list {
-    height: calc(30vh - 120px);
-  }
-
-  .chat-app-messages {
-    height: calc(100% - 120px);
-  }
-
-  .chat-app-header {
-    padding: 10px;
-  }
-
-  .chat-app-header-avatar {
-    width: 30px;
-    height: 30px;
-  }
-
-  .chat-app-header-username {
-    font-size: 1rem;
-  }
-
-  .chat-app-bubble {
-    max-width: 80%;
-    padding: 8px 12px;
-    margin: 5px 10px;
-  }
-
-  .chat-app-input {
-    padding: 8px;
-  }
-
-  .chat-app-input input {
-    padding: 8px 12px;
-  }
-
-  .chat-app-language-picker {
-    padding: 8px;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .chat-app-language-picker select {
-    width: 100%;
-    margin-top: 5px;
-  }
-
-  /* Call overlay adjustments */
-  .webrtc-call-overlay {
-    padding: 10px;
-  }
-
-  .webrtc-call-container {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .webrtc-video-container {
-    flex-direction: column-reverse;
-  }
-
-  .webrtc-local-video {
-    width: 120px;
-    height: 160px;
-    position: absolute;
-    bottom: 80px;
-    right: 10px;
-    z-index: 10;
-  }
-
-  .webrtc-remote-video {
-    width: 100%;
-    height: auto;
-  }
-
-  .webrtc-call-controls {
+  /* Mobile header */
+  .chat-app-mobile-header {
+    display: flex;
     position: fixed;
-    bottom: 20px;
+    top: 0;
     left: 0;
     right: 0;
-    justify-content: center;
-  }
-
-  .webrtc-control-btn {
-    margin: 0 8px;
-    width: 50px;
+    z-index: 1000;
+    padding: 12px 16px;
+    padding-top: max(12px, env(safe-area-inset-top));
+    background: var(--sidebar-bg);
+    border-bottom: 1px solid var(--border-color);
     height: 50px;
   }
 
-  /* Hide some elements on mobile */
-  .chat-app-name-corner,
-  .chat-app-action-buttons {
-    display: none;
+  /* Profile section adjustments */
+  .chat-app-profile-section {
+    padding: 8px;
+    margin-bottom: 12px;
   }
 
-  /* Typing indicator adjustments */
-  .chat-app-typing {
-    margin-left: 15px;
+  .chat-app-profile-header {
+    padding: 8px;
   }
 
-  /* File message adjustments */
-  .chat-app-file-message {
-    max-width: 100%;
+  .chat-app-profile-avatar-container {
+    width: 36px;
+    height: 36px;
   }
 
-  .chat-app-file-preview img {
-    max-width: 150px;
-    max-height: 150px;
-  }
-}
-
-/* Very small phones (max-width: 480px) */
-@media screen and (max-width: 480px) {
-  .chat-app-sidebar {
-    max-height: 25vh;
+  .chat-app-username-large {
+    font-size: 0.9rem;
   }
 
-  .chat-app-main {
-    height: calc(75vh - 60px);
+  /* Search bar */
+  .chat-app-search {
+    margin: 8px;
+    width: calc(100% - 16px);
+    padding: 10px 14px;
   }
 
+  /* User list */
   .chat-app-user-list {
-    height: calc(25vh - 120px);
+    height: calc(35vh - 140px);
+    overflow-y: auto;
+  }
+
+  /* Messages area */
+  .chat-app-messages {
+    height: calc(100% - 70px);
+    padding: 12px;
+    padding-bottom: 0;
   }
 
   .chat-app-bubble {
-    max-width: 90%;
+    max-width: 85%;
+    padding: 10px 14px;
+    margin: 6px 8px;
     font-size: 0.9rem;
   }
 
@@ -1192,225 +1094,162 @@
     font-size: 0.7rem;
   }
 
+  /* Input area */
+  .chat-app-input {
+    padding: 12px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    position: relative;
+  }
+
+  .chat-app-input input {
+    padding: 10px 14px;
+  }
+
   .chat-app-input button {
-    padding: 8px 12px;
-    font-size: 0.8rem;
+    padding: 10px 16px;
+    font-size: 0.9rem;
   }
 
-  .webrtc-local-video {
-    width: 100px;
-    height: 133px;
-    bottom: 70px;
-  }
-}
-
-/* Tablets (768px to 991px) */
-@media (min-width: 768px) and (max-width: 991px) {
-  .chat-app-layout {
-    flex-direction: row;
+  /* Language picker */
+  .chat-app-language-picker {
+    padding: 8px;
+    flex-direction: column;
+    margin-top: 0;
   }
 
-  .chat-app-sidebar {
-    width: 280px;
-    height: 100vh;
+  /* Hide elements not needed on mobile */
+  .chat-app-name-corner,
+  .chat-app-action-buttons {
+    display: none;
+  }
+
+  /* Call interface adjustments */
+  .webrtc-call-overlay {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  .webrtc-call-container {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+    height: 100%;
     padding: 16px;
   }
 
-  .chat-app-main {
-    flex: 1;
-  }
-
-  .chat-app-language-picker {
-    width: 100%;
-  }
-
-  .chat-app-name-corner {
-    width: 100%;
-  }
-
-  .chat-app-theme-toggle {
-    bottom: 140px;
-    left: 300px;
+  .webrtc-video-container {
+    height: calc(100% - 120px);
   }
 
   .webrtc-remote-video {
-    height: 300px;
+    height: 100%;
   }
 
   .webrtc-local-video {
-    width: 120px;
-    height: 80px;
+    width: 30vw;
+    height: 25vh;
+    bottom: 90px;
+    right: 10px;
+  }
+
+  .webrtc-call-controls {
+    position: fixed;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    left: 0;
+    right: 0;
+    padding: 0 16px;
+  }
+
+  .webrtc-control-btn {
+    width: 44px;
+    height: 44px;
+    margin: 0 6px;
   }
 }
 
-/* Laptops and desktops (992px and up) */
-@media (min-width: 992px) {
-  .chat-app-layout {
-    flex-direction: row;
-  }
-
+/* Small phones in portrait (up to 480px) */
+@media screen and (max-width: 480px) and (orientation: portrait) {
   .chat-app-sidebar {
-    width: 320px;
-    height: 100vh;
-    padding: 20px;
+    height: 40vh;
+    max-height: 40vh;
   }
 
   .chat-app-main {
-    flex: 1;
-  }
-
-  .chat-app-language-picker {
-    width: 100%;
-  }
-
-  .chat-app-name-corner {
-    width: 100%;
-  }
-
-  .chat-app-theme-toggle {
-    bottom: 140px;
-    left: 340px;
-  }
-
-  .webrtc-remote-video {
-    height: 350px;
-  }
-
-  .webrtc-local-video {
-    width: 120px;
-    height: 80px;
-  }
-}
-
-/* Landscape orientation for mobile devices (up to 767px) */
-@media (max-width: 767px) and (orientation: landscape) {
-  .chat-app-layout {
-    flex-direction: row;
-  }
-
-  .chat-app-sidebar {
-    width: 50%;
-    height: 100vh;
-    padding: 12px;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-  }
-
-  .chat-app-sidebar.active {
-    transform: translateX(0);
-  }
-
-  .chat-app-main {
-    width: 100%;
-    height: 100vh;
-  }
-
-  .chat-app-header {
-    padding: 12px 16px;
-  }
-
-  .chat-app-messages {
-    padding: 12px;
+    height: calc(60vh - 50px);
   }
 
   .chat-app-bubble {
-    max-width: 80%;
-    padding: 10px 14px;
-    font-size: 14px;
+    max-width: 90%;
+    padding: 8px 12px;
   }
 
-  .chat-app-input {
-    padding: 12px 16px;
+  .chat-app-input input {
+    padding: 8px 12px;
   }
 
-  .chat-app-language-picker {
-    padding: 10px;
+  .chat-app-input button {
+    padding: 8px 12px;
+  }
+}
+
+/* Landscape orientation */
+@media screen and (max-width: 768px) and (orientation: landscape) {
+  .chat-app-layout {
     flex-direction: row;
-    gap: 10px;
-  }
-
-  .chat-app-name-corner {
-    font-size: 20px;
-  }
-
-  .chat-app-theme-toggle {
-    bottom: 100px;
-    left: 12px;
-  }
-
-  .webrtc-remote-video {
-    height: 50vh;
-  }
-
-  .webrtc-local-video {
-    width: 20vw;
-    height: 15vh;
-  }
-}
-
-/* Accessibility improvements for mobile (up to 767px) */
-@media (max-width: 767px) {
-  .chat-app-person-item {
-    padding: 14px 12px;
-    min-height: 60px;
-  }
-
-  .chat-app-user-avatar {
-    width: 42px;
-    height: 42px;
-  }
-
-  .chat-app-bubble.chat-app-sent {
-    color: #ffffff;
-  }
-
-  .chat-app-bubble.chat-app-recv {
-    background: rgba(255, 255, 255, 0.15);
-  }
-
-  .chat-app-preview {
-    display: none;
-  }
-}
-/* Mobile header */
-.chat-app-mobile-header {
-  display: none;
-  padding: 10px;
-  background: var(--sidebar-bg);
-  border-bottom: 1px solid var(--border-color);
-  align-items: center;
-  justify-content: space-between;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-}
-
-.chat-app-mobile-menu-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--text-color);
-}
-
-.chat-app-mobile-title {
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-@media screen and (max-width: 768px) {
-  .chat-app-mobile-header {
-    display: flex;
   }
 
   .chat-app-sidebar {
-    margin-top: 50px;
+    width: 35%;
+    height: 100vh;
+    max-height: 100vh;
+    border-right: 1px solid var(--border-color);
+    border-bottom: none;
   }
 
   .chat-app-main {
-    margin-top: 50px;
+    width: 65%;
+    height: 100vh;
+  }
+
+  .chat-app-mobile-header {
+    display: none;
+  }
+
+  .chat-app-user-list {
+    height: calc(100vh - 180px);
+  }
+
+  .chat-app-messages {
+    height: calc(100% - 80px);
+  }
+}
+
+/* Tall aspect ratio phones (like iPhone X) */
+@media screen and (max-width: 768px) and (min-aspect-ratio: 9/16) {
+  .chat-app-sidebar {
+    height: 45vh;
+    max-height: 45vh;
+  }
+
+  .chat-app-main {
+    height: calc(55vh - 50px);
+  }
+}
+
+/* Safe area support */
+@supports (padding: max(0px)) {
+  .chat-app-layout {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  .chat-app-sidebar {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  
+  .chat-app-main {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
   }
 }
 
