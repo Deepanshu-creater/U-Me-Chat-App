@@ -51,7 +51,8 @@ export const SimpleToast = ({ message, type, progress, onClose }) => {
 
   if (!visible) return null;
 
-  return (
+ return (
+  <div className={`simple-toast-overlay ${visible ? 'visible' : 'hidden'}`}>
     <div className={`simple-toast-root ${type} ${visible ? 'visible' : 'hidden'}`}>
       <div className="simple-toast-content">
         {type === 'success' && <CheckCircle size={20} className="simple-toast-icon" />}
@@ -74,5 +75,6 @@ export const SimpleToast = ({ message, type, progress, onClose }) => {
         </div>
       )}
     </div>
-  );
+  </div>
+);
 };
