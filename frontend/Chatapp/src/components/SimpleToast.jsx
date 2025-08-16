@@ -7,10 +7,10 @@ export const SimpleToast = ({ message, type = "info", progress, onClose }) => {
 
   useEffect(() => {
     setVisible(true);
-    document.body.classList.add("simple-toast-no-scroll");
+    document.body.classList.add("simple-toast-active");
 
     return () => {
-      document.body.classList.remove("simple-toast-no-scroll");
+      document.body.classList.remove("simple-toast-active");
     };
   }, []);
 
@@ -19,13 +19,13 @@ export const SimpleToast = ({ message, type = "info", progress, onClose }) => {
     setTimeout(onClose, 300);
   };
 
-
   return (
-    <> <div 
-        className={`simple-toast-overlay ${visible ? "visible" : ""}`}
-        onClick={handleClose}
-      />
-       <div className={`simple-toast-root ${type} ${visible ? "visible" : "hidden"}`}>
+    <>
+      {/* Overlay div - separate from toast */}
+      <div className={`simple-toast-overlay ${visible ? "visible" : ""}`} />
+      
+      {/* Toast content */}
+      <div className={`simple-toast-root ${type} ${visible ? "visible" : "hidden"}`}>
         <div className="simple-toast-content">
           <div className="simple-toast-icon">
             {type === "success" && <CheckCircle size={20} />}

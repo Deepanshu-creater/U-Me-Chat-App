@@ -24,6 +24,7 @@
   opacity: 1;
 }
 
+
 .simple-toast-root.hidden {
   transform: translate(-50%, -50%) scale(0.95);
   opacity: 0;
@@ -228,23 +229,24 @@ body.simple-toast-active {
   
   /* Ensure mobile coverage */
 .simple-toast-overlay {
-  position: fixed !;
-  top: 0 !;
-  left: 0 !;
-  right: 0 !;
-  bottom: 0 !;
-  width: 100vw !;
-  height: 100vh !;
-  background: rgba(0, 0, 0, 0.3) !;
-  backdrop-filter: blur(10px) !;
-  -webkit-backdrop-filter: blur(10px) !; /* Safari */
-  z-index: 9999 !;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Safari */
+  z-index: 1000;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
-  margin: 0 !;
-  padding: 0 !;
+  margin: 0;
+  padding: 0;
 }
+
 
 .simple-toast-overlay.visible {
   opacity: 1;
