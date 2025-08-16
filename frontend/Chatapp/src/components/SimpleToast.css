@@ -47,10 +47,13 @@
 
 /* Progress Indicator */
 .simple-toast-progress-container {
-  position: relative;
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
   width: 24px;
   height: 24px;
   flex-shrink: 0;
+  z-index: 10;
 }
 
 .simple-toast-progress-svg {
