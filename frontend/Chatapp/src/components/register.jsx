@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, ArrowRight, Smartphone, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { SimpleToast } from './components/SimpleToast';
+import { SimpleToast } from './SimpleToast';
 import './register.css';
 import axios from 'axios';
 
