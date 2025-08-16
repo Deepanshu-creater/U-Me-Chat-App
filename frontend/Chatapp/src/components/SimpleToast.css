@@ -11,7 +11,7 @@
   gap: 12px;
   max-width: 320px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
+  z-index: 1001;
   opacity: 0;
   transition: all 0.3s ease;
   backdrop-filter: blur(8px);
@@ -118,22 +118,37 @@
   background: linear-gradient(135deg, rgba(96, 165, 250, 0.9), rgba(59, 130, 246, 0.9));
 }
 
-/* Overlay behind toast */
+/* Full Screen Overlay with Blur - CRITICAL FOR FULL COVERAGE */
 .simple-toast-overlay {
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.2); /* light dark layer */
-  backdrop-filter: blur(6px);      /* blur effect */
+  min-width: 100vw;
+  min-height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px); /* Safari support */
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999; /* one less than toast */
+  z-index: 1000;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
+  /* Ensure it covers everything */
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  /* Force full coverage on all devices */
+  transform: translateZ(0);
+  will-change: opacity;
 }
 
 .simple-toast-overlay.visible {
@@ -146,12 +161,49 @@
   pointer-events: none;
 }
 
+/* Override any parent container constraints */
+.simple-toast-overlay {
+  /* Force break out of any container */
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  /* Ensure it's always on top */
+  z-index: 9999 !important;
+}
+
+/* Prevent body scroll when overlay is active */
+body.simple-toast-active {
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* Additional mobile coverage */
+.simple-toast-overlay {
+  /* Handle mobile browser UI */
+  height: 100dvh; /* Dynamic viewport height */
+  min-height: 100dvh;
+  /* Handle orientation changes */
+  width: 100dvw;
+  min-width: 100dvw;
+}
+
+/* Fallback for older browsers */
+@supports not (height: 100dvh) {
+  .simple-toast-overlay {
+    height: 100vh;
+    min-height: 100vh;
+  }
+}
+
 /* Toast purple theme */
 .simple-toast-root {
   background: linear-gradient(135deg, rgba(168, 85, 247, 0.95), rgba(126, 34, 206, 0.95));
   color: white;
 }
-
 
 /* Animations */
 @keyframes simple-toast-spin {
@@ -162,8 +214,6 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .simple-toast-root {
-    right: 16px;
-    bottom: 16px;
     max-width: calc(100vw - 32px);
     padding: 14px;
   }
@@ -174,5 +224,17 @@
   
   .simple-toast-message {
     font-size: 13px;
+  }
+  
+  /* Ensure mobile coverage */
+  .simple-toast-overlay {
+    /* Handle mobile safe areas */
+    top: env(safe-area-inset-top, 0) !important;
+    left: env(safe-area-inset-left, 0) !important;
+    right: env(safe-area-inset-right, 0) !important;
+    bottom: env(safe-area-inset-bottom, 0) !important;
+    /* Subtract safe areas from dimensions */
+    width: calc(100vw - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0)) !important;
+    height: calc(100vh - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0)) !important;
   }
 }
