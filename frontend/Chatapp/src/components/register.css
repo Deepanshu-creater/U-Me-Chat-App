@@ -1,9 +1,5 @@
-html, body {
-  width: 100%;
-  overflow-x: hidden;
-}
+
 .register-container {
-  max-width: 500px;
   margin: 2rem auto;
   padding: 2.5rem;
   background: #ffffff;
