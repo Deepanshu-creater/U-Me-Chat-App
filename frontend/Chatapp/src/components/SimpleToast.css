@@ -118,6 +118,41 @@
   background: linear-gradient(135deg, rgba(96, 165, 250, 0.9), rgba(59, 130, 246, 0.9));
 }
 
+/* Overlay behind toast */
+.simple-toast-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.2); /* light dark layer */
+  backdrop-filter: blur(6px);      /* blur effect */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999; /* one less than toast */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.simple-toast-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.simple-toast-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Toast purple theme */
+.simple-toast-root {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.95), rgba(126, 34, 206, 0.95));
+  color: white;
+}
+
+
 /* Animations */
 @keyframes simple-toast-spin {
   from { transform: translate(-50%, -50%) rotate(0deg); }
