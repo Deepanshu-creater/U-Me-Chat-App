@@ -98,8 +98,10 @@ export const SimpleToast = ({ message, type, progress = 0, onClose }) => {
               {type === 'progress' && <Loader2 size={20} className="simple-toast-spin" />}
             </div>
             <span className="simple-toast-message">{message}</span>
-            {type === 'progress' && <CircularProgress progress={progress} />}
           </div>
+          
+          {/* Circular Progress positioned at bottom-right of toast */}
+          {type === 'progress' && <CircularProgress progress={progress} />}
 
           {type === 'progress' && (
             <div className="simple-toast-progress-section">
