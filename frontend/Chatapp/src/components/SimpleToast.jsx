@@ -3,78 +3,120 @@ import React, { useEffect, useState } from 'react';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import './SimpleToast.css';
 
+// Circular Progress Component
 const CircularProgress = ({ progress }) => {
-  const radius = 16;
+  const radius = 10;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   return (
     <div className="simple-toast-progress-container">
-      <svg className="simple-toast-progress-svg" viewBox="0 0 40 40">
+      <svg className="simple-toast-progress-svg" viewBox="0 0 24 24">
         <circle
-          cx="20"
-          cy="20"
+          cx="12"
+          cy="12"
           r={radius}
           fill="none"
-          stroke="rgba(255, 255, 255, 0.2)"
-          strokeWidth="3"
+          stroke="rgba(255, 255, 255, 0.3)"
+          strokeWidth="2"
         />
         <circle
-          cx="20"
-          cy="20"
+          cx="12"
+          cy="12"
           r={radius}
           fill="none"
           stroke="white"
-          strokeWidth="3"
+          strokeWidth="2"
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
+          className="transition-all duration-300 ease-out"
         />
       </svg>
-      <Loader2 size={16} className="simple-toast-spin" />
+      <div className="simple-toast-spin">
+        <Loader2 size={12} />
+      </div>
     </div>
   );
 };
 
-export const SimpleToast = ({ message, type, progress, onClose }) => {
-  const [visible, setVisible] = useState(true);
+export const SimpleToast = ({ message, type, progress = 0, onClose }) => {
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // Add body class to prevent scrolling
+    document.body.classList.add('simple-toast-active');
+    
+    // Show toast after brief delay for animation
+    const showTimer = setTimeout(() => {
+      setVisible(true);
+    }, 50);
+
+    // Auto-close for non-progress toasts
+    let autoCloseTimer;
     if (type !== 'progress') {
-      const timer = setTimeout(() => {
-        setVisible(false);
-        setTimeout(() => onClose(), 300);
+      autoCloseTimer = setTimeout(() => {
+        handleClose();
       }, 3000);
-      return () => clearTimeout(timer);
     }
-  }, [type, onClose]);
 
-  if (!visible) return null;
+    return () => {
+      clearTimeout(showTimer);
+      if (autoCloseTimer) clearTimeout(autoCloseTimer);
+      document.body.classList.remove('simple-toast-active');
+    };
+  }, [type]);
 
- return (
-  <div className={`simple-toast-overlay ${visible ? 'visible' : 'hidden'}`}>
-    <div className={`simple-toast-root ${type} ${visible ? 'visible' : 'hidden'}`}>
-      <div className="simple-toast-content">
-        {type === 'success' && <CheckCircle size={20} className="simple-toast-icon" />}
-        {type === 'error' && <XCircle size={20} className="simple-toast-icon" />}
-        {type === 'progress' && <CircularProgress progress={progress} />}
-        <span className="simple-toast-message">{message}</span>
-      </div>
-      {type === 'progress' && (
-        <div className="simple-toast-progress-section">
-          <div className="simple-toast-progress-info">
-            <span className="simple-toast-progress-label">Progress</span>
-            <span className="simple-toast-progress-percentage">{progress}%</span>
+  const handleClose = () => {
+    setVisible(false);
+    setTimeout(() => {
+      document.body.classList.remove('simple-toast-active');
+      onClose();
+    }, 300);
+  };
+
+  const handleOverlayClick = (e) => {
+    // Only close if clicking the overlay, not the toast itself
+    if (e.target === e.currentTarget && type !== 'progress') {
+      handleClose();
+    }
+  };
+
+  return (
+    <>
+      {/* Full Screen Overlay */}
+      <div 
+        className={`simple-toast-overlay ${visible ? 'visible' : 'hidden'}`}
+        onClick={handleOverlayClick}
+      >
+        {/* Toast Content */}
+        <div className={`simple-toast-root ${type} ${visible ? 'visible' : 'hidden'}`}>
+          <div className="simple-toast-content">
+            <div className="simple-toast-icon">
+              {type === 'success' && <CheckCircle size={20} />}
+              {type === 'error' && <XCircle size={20} />}
+              {type === 'progress' && <Loader2 size={20} className="simple-toast-spin" />}
+            </div>
+            <span className="simple-toast-message">{message}</span>
+            {type === 'progress' && <CircularProgress progress={progress} />}
           </div>
-          <div className="simple-toast-progress-bar">
-            <div 
-              className="simple-toast-progress-fill" 
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
+
+          {type === 'progress' && (
+            <div className="simple-toast-progress-section">
+              <div className="simple-toast-progress-info">
+                <span className="simple-toast-progress-label">Progress</span>
+                <span className="simple-toast-progress-percentage">{progress}%</span>
+              </div>
+              <div className="simple-toast-progress-bar">
+                <div 
+                  className="simple-toast-progress-fill" 
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          )}
         </div>
-      )}
-    </div>
-  </div>
-);
+      </div>
+    </>
+  );
 };
