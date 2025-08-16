@@ -4,13 +4,13 @@ import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import './SimpleToast.css';
 
 const CircularProgress = ({ progress }) => {
-  const radius = 18;
+  const radius = 16;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   return (
-    <div className="circular-progress-container">
-      <svg className="circular-progress" viewBox="0 0 40 40">
+    <div className="simple-toast-progress-container">
+      <svg className="simple-toast-progress-svg" viewBox="0 0 40 40">
         <circle
           cx="20"
           cy="20"
@@ -29,12 +29,9 @@ const CircularProgress = ({ progress }) => {
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
-          className="progress-circle"
         />
       </svg>
-      <div className="progress-icon">
-        <Loader2 size={16} className="spin" />
-      </div>
+      <Loader2 size={16} className="simple-toast-spin" />
     </div>
   );
 };
@@ -55,21 +52,24 @@ export const SimpleToast = ({ message, type, progress, onClose }) => {
   if (!visible) return null;
 
   return (
-    <div className={`simple-toast ${type} ${visible ? 'visible' : 'hidden'}`}>
-      <div className="toast-content">
-        {type === 'success' && <CheckCircle size={20} />}
-        {type === 'error' && <XCircle size={20} />}
+    <div className={`simple-toast-root ${type} ${visible ? 'visible' : 'hidden'}`}>
+      <div className="simple-toast-content">
+        {type === 'success' && <CheckCircle size={20} className="simple-toast-icon" />}
+        {type === 'error' && <XCircle size={20} className="simple-toast-icon" />}
         {type === 'progress' && <CircularProgress progress={progress} />}
-        <span>{message}</span>
+        <span className="simple-toast-message">{message}</span>
       </div>
       {type === 'progress' && (
-        <div className="progress-section">
-          <div className="progress-info">
-            <span className="progress-label">Progress</span>
-            <span className="progress-percentage">{progress}%</span>
+        <div className="simple-toast-progress-section">
+          <div className="simple-toast-progress-info">
+            <span className="simple-toast-progress-label">Progress</span>
+            <span className="simple-toast-progress-percentage">{progress}%</span>
           </div>
-          <div className="progress-bar">
-            <div className="progress" style={{ width: `${progress}%` }}></div>
+          <div className="simple-toast-progress-bar">
+            <div 
+              className="simple-toast-progress-fill" 
+              style={{ width: `${progress}%` }}
+            ></div>
           </div>
         </div>
       )}
