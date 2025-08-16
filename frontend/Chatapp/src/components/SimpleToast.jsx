@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import './SimpleToast.css';
 
-// Circular Progress Component
 const CircularProgress = ({ progress }) => {
   const radius = 18;
   const circumference = 2 * Math.PI * radius;
