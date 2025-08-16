@@ -13,13 +13,24 @@
   max-width: 300px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;
+  transition: all 0.3s ease-out;
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.simple-toast.hidden {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.simple-toast.visible {
   animation: slideIn 0.3s ease-out;
 }
 
 .toast-content {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .simple-toast.success {
@@ -34,20 +45,76 @@
   background-color: #3498db;
 }
 
-.progress-bar {
-  height: 4px;
-  background-color: rgba(255, 255, 255, 0.3);
-  border-radius: 2px;
+/* Circular Progress Styles */
+.circular-progress-container {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circular-progress {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  transform: rotate(-90deg);
+}
+
+.progress-circle {
+  transition: stroke-dashoffset 0.3s ease-out;
+}
+
+.progress-icon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: white;
+}
+
+/* Progress Section */
+.progress-section {
   margin-top: 8px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.progress-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.progress-percentage {
+  font-size: 11px;
+  color: white;
+  font-weight: 600;
+}
+
+.progress-bar {
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .progress {
   height: 100%;
   background-color: white;
-  transition: width 0.3s ease;
+  border-radius: 3px;
+  transition: width 0.3s ease-out;
 }
 
+/* Animations */
 .spin {
   animation: spin 1s linear infinite;
 }
@@ -58,6 +125,22 @@
 }
 
 @keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from { 
+    transform: translateX(100%); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateX(0); 
+    opacity: 1; 
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .simple-toast {
+    right: 16px;
+    bottom: 16px;
+    min-width: 280px;
+    max-width: calc(100vw - 32px);
+  }
 }
