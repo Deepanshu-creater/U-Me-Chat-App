@@ -131,6 +131,7 @@
   font-size: 0.875rem;
   color: #4b5563;
   line-height: 1.5;
+  justify-content: center;
 }
 
 .terms-agreement input[type="checkbox"] {
@@ -144,6 +145,7 @@
   cursor: pointer;
   position: relative;
   flex-shrink: 0;
+
 }
 
 .terms-agreement input[type="checkbox"]:checked {
