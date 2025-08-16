@@ -162,15 +162,6 @@ const handleSubmit = (e) => {
         <p>Join our community today</p>
       </div>
 
- {toast && (
-        <SimpleToast
-          message={toast.message}
-          type={toast.type}
-          progress={toast.progress}
-          onClose={closeToast}
-        />
-      )}
-      
       <form className="register-form" onSubmit={handleSubmit}>
         <div className="name-fields">
           {/* Username field */}
@@ -295,6 +286,14 @@ const handleSubmit = (e) => {
         Already have an account?{' '}
         <button onClick={() => navigate('/login')}>Sign In</button>
       </div>
+      {toast && (
+        <SimpleToast
+          message={toast.message}
+          type={toast.type}
+          progress={toast.progress}
+          onClose={closeToast}
+        />
+      )}
     </div>
   );
 }
