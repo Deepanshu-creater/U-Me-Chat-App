@@ -227,14 +227,27 @@ body.simple-toast-active {
   }
   
   /* Ensure mobile coverage */
-  .simple-toast-overlay {
-    /* Handle mobile safe areas */
-    top: env(safe-area-inset-top, 0) !important;
-    left: env(safe-area-inset-left, 0) !important;
-    right: env(safe-area-inset-right, 0) !important;
-    bottom: env(safe-area-inset-bottom, 0) !important;
-    /* Subtract safe areas from dimensions */
-    width: calc(100vw - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0)) !important;
-    height: calc(100vh - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0)) !important;
+ .simple-toast-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Active State */
+.simple-toast-overlay.visible {
+  opacity: 1;
+}
+
+/* Optional: Prevent body scroll when overlay is active */
+body.simple-toast-no-scroll {
+  overflow: hidden;
+  height: calc(100vh - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0)) !important;
   }
 }

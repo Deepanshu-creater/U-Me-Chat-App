@@ -80,16 +80,6 @@ const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-        showToast('Creating your account...', 'progress', 0);
-
-    // Simulate progress updates
-    const progressInterval = setInterval(() => {
-      setToast(prev => ({
-        ...prev,
-        progress: Math.min((prev?.progress || 0) + 10, 90)
-      }));
-    }, 300);
-
     // 1. MOVE VALIDATION TO THE TOP (before API call)
     const newErrors = {};
     if (!formData.username) {
@@ -150,6 +140,16 @@ const handleSubmit = (e) => {
       setIsSubmitting(false);
       alert("Unexpected error occurred.");
     }
+
+      showToast('Creating your account...', 'progress', 0);
+
+    // Simulate progress updates
+    const progressInterval = setInterval(() => {
+      setToast(prev => ({
+        ...prev,
+        progress: Math.min((prev?.progress || 0) + 10, 90)
+      }));
+    }, 300);
 };
 
   return (
