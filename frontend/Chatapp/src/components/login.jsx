@@ -2,9 +2,21 @@ import React, { useState } from 'react';
 import { ChevronLeft, Mail, Lock, ArrowRight, User, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import './login.css';
+import { SimpleToast } from './SimpleToast';
 import axios from 'axios';
 
 export default function Login() {
+
+   const [toast, setToast] = useState(null);
+  
+  const showToast = (message, type, progress) => {
+    setToast({ message, type, progress });
+  };
+
+  const closeToast = () => {
+    setToast(null);
+  };
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
@@ -38,10 +50,21 @@ export default function Login() {
     }
 
     setIsSubmitting(true);
+    showToast('Signing you in...', 'progress', 0);
+
+     const progressInterval = setInterval(() => {
+      setToast(prev => ({
+        ...prev,
+        progress: Math.min((prev?.progress || 0) + 15, 90)
+      }));
+    }, 300);
+
     
     // Make API call only if validation passes
     axios.post(`${SOCKET_URL}/login`, formData)
       .then(response => {
+        clearInterval(progressInterval);
+        showToast('Login successful!', 'success', 100);
         console.log("Login successful:", response.data);
 
         // ✅ Save username & token to localStorage
@@ -55,6 +78,11 @@ export default function Login() {
       })
       .catch(error => {
         console.error("Error logging in:", error);
+        clearInterval(progressInterval);
+        showToast(
+          error.response?.data?.message || 'Invalid username or password', 
+          'error'
+        );
         setIsSubmitting(false);
 
         if (
@@ -240,6 +268,14 @@ export default function Login() {
             </div>
           )}
         </>
+      )}
+      {toast && (
+        <SimpleToast
+          message={toast.message}
+          type={toast.type}
+          progress={toast.progress}
+          onClose={closeToast}
+        />
       )}
     </div>
   );

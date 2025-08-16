@@ -1,10 +1,21 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, ArrowRight, Smartphone, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { SimpleToast } from './components/SimpleToast';
 import './register.css';
 import axios from 'axios';
 
 export default function Register() {
+    const [toast, setToast] = useState(null);
+  
+  const showToast = (message, type, progress) => {
+    setToast({ message, type, progress });
+  };
+
+  const closeToast = () => {
+    setToast(null);
+  };
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
@@ -69,6 +80,16 @@ const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+        showToast('Creating your account...', 'progress', 0);
+
+    // Simulate progress updates
+    const progressInterval = setInterval(() => {
+      setToast(prev => ({
+        ...prev,
+        progress: Math.min((prev?.progress || 0) + 10, 90)
+      }));
+    }, 300);
+
     // 1. MOVE VALIDATION TO THE TOP (before API call)
     const newErrors = {};
     if (!formData.username) {
@@ -102,11 +123,18 @@ const handleSubmit = (e) => {
       axios.post(`${SOCKET_URL}/register`, formData)
         .then(response => {
           console.log("Registration successful:", response.data);
+           clearInterval(progressInterval);
+          showToast('Account created successfully!', 'success', 100);
           localStorage.setItem("username", response.data.user.username);
           navigate('/login'); // ✅ Navigate to chat on success
         })
         .catch(error => {
           console.error("Registration error:", error);
+          clearInterval(progressInterval);
+        showToast(
+          error.response?.data?.message || 'Registration failed', 
+          'error'
+        );
           setIsSubmitting(false); // ✅ Reset loading state on error
 
           if (error.response && error.response.data && error.response.data.message) {
@@ -258,6 +286,14 @@ const handleSubmit = (e) => {
         Already have an account?{' '}
         <button onClick={() => navigate('/login')}>Sign In</button>
       </div>
+      {toast && (
+        <SimpleToast
+          message={toast.message}
+          type={toast.type}
+          progress={toast.progress}
+          onClose={closeToast}
+        />
+      )}
     </div>
   );
 }

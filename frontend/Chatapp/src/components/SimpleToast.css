@@ -1,0 +1,63 @@
+/* SimpleToast.css */
+.simple-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 16px;
+  border-radius: 8px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 250px;
+  max-width: 300px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.simple-toast.success {
+  background-color: #4BB543;
+}
+
+.simple-toast.error {
+  background-color: #FF3333;
+}
+
+.simple-toast.progress {
+  background-color: #3498db;
+}
+
+.progress-bar {
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background-color: white;
+  transition: width 0.3s ease;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
