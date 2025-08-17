@@ -1025,6 +1025,7 @@
 /* ================ RESPONSIVE DESIGN ================ */
 /* ================ RESPONSIVE DESIGN ================ */
 /* ================== MOBILE RESPONSIVE STYLES ================== */
+/* ================ MOBILE RESPONSIVE STYLES ================ */
 @media screen and (max-width: 768px) {
   .chat-app-layout {
     display: flex;
