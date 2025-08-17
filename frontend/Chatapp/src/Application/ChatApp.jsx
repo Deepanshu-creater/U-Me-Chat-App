@@ -978,11 +978,7 @@ const answerCall = async () => {
         >
           {sidebarOpen ? "✕" : "☰"}
         </button>
-        <div className="chat-app-mobile-title">
-          {active || "Chat App"}
         </div>
-        <div className={`chat-app-status ${isConnected ? "chat-app-on" : "chat-app-off"}`} />
-      </div>
     )}
       <ToastContainer 
   position="top-right"

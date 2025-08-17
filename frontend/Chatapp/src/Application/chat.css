@@ -1126,13 +1126,22 @@
 
   /* Input Area */
   .chat-app-input {
-    padding: 12px 16px;
+    padding: 8px 12px;
     background: var(--msg-bar-bg);
     border-top: 1px solid var(--input-border);
     position: sticky;
     bottom: 0;
     z-index: 200;
+    max-width:auto;
   }
+.chat-app-input button{
+  font-weight:300px;
+  padding: 6px 10px;
+}
+.chat-app-sidebar-toggle{
+  margin-left:0px;
+  margin-top:15px;
+}
 
   /* Upload Overlay */
   .chat-app-upload-overlay {
