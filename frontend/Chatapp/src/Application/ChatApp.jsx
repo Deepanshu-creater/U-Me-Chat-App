@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
-import { User, Phone, Video, Upload, Trash2, Paperclip, PhoneOff, VideoOff, Mic, MicOff, FileText, Image as ImageIcon, File } from "lucide-react";
+import { User, Phone, Video, Upload, Trash2, Paperclip, PhoneOff, VideoOff, Mic, MicOff, FileText, X,Image as ImageIcon, File } from "lucide-react";
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -27,7 +27,19 @@ export default function ChatApp() {
   const profileInputRef = useRef(null);
   const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
   const [theme, setTheme] = useState(localStorage.getItem('chatTheme') || 'dark');
+  const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+// Add this useEffect for mobile detection
+useEffect(() => {
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth <= 768);
+  };
   
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+  return () => window.removeEventListener('resize', checkMobile);
+}, []);
   
   // Upload states
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
@@ -100,6 +112,15 @@ const pulseRing = {
     repeat: Infinity,
     ease: "easeInOut"
   }
+};
+
+const toggleMobileSidebar = () => {
+  setIsMobileSidebarOpen(!isMobileSidebarOpen);
+};
+
+// Close mobile sidebar
+const closeMobileSidebar = () => {
+  setIsMobileSidebarOpen(false);
 };
 
   /* ====================== Theme toggling ====================== */
@@ -948,7 +969,21 @@ const answerCall = async () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-
+     {isMobile && (
+      <div className="chat-app-mobile-header">
+        <button 
+          className="chat-app-sidebar-toggle"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+        >
+          {sidebarOpen ? "✕" : "☰"}
+        </button>
+        <div className="chat-app-mobile-title">
+          {active || "Chat App"}
+        </div>
+        <div className={`chat-app-status ${isConnected ? "chat-app-on" : "chat-app-off"}`} />
+      </div>
+    )}
       <ToastContainer 
   position="top-right"
   autoClose={5000}
@@ -1140,8 +1175,9 @@ const answerCall = async () => {
 
       {/* ------------------------------ Sidebar ------------------------------ */}
      
+       {(!isMobile || sidebarOpen) && (
       <motion.aside 
-        className="chat-app-sidebar"
+        className={`chat-app-sidebar ${sidebarOpen ? 'active' : ''}`}
         initial={{ x: -50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -1533,6 +1569,13 @@ const answerCall = async () => {
           onChange={handleProfileImageUpload}
         />
       </motion.aside>
+      )}
+ {isMobile && sidebarOpen && (
+      <div 
+        className="chat-app-sidebar-overlay"
+        onClick={() => setSidebarOpen(false)}
+      />
+    )}
 
       {/* ---------------------------- Chat section ---------------------------- */}
       <motion.main 
@@ -1739,6 +1782,10 @@ const answerCall = async () => {
           )}
         </motion.form> 
       </motion.main>
+       <ToastContainer 
+      position={isMobile ? "top-right" : "top-center"}
+      className="chat-app-toast-container"
+    />
     </motion.div>
   );
 }

@@ -1053,7 +1053,6 @@
   /* Sidebar */
   .chat-app-sidebar {
     position: fixed;
-    top: 60px;
     left: 0;
     width: 280px;
     height: calc(100vh - 60px);
@@ -1091,7 +1090,6 @@
 
   /* Main Content */
   .chat-app-main {
-    margin-top: 60px;
     height: calc(100vh - 60px);
     display: flex;
     flex-direction: column;
