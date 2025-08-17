@@ -27,11 +27,6 @@ export default function ChatApp() {
   const profileInputRef = useRef(null);
   const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
   const [theme, setTheme] = useState(localStorage.getItem('chatTheme') || 'dark');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  const toggleSidebar = () => {
-  setSidebarOpen(!sidebarOpen);
-  };
   
   
   // Upload states
@@ -955,7 +950,7 @@ const answerCall = async () => {
     >
 
       <ToastContainer 
-  position="top-center"
+  position="top-right"
   autoClose={5000}
   hideProgressBar={false}
   newestOnTop={false}
@@ -965,19 +960,6 @@ const answerCall = async () => {
   draggable
   pauseOnHover
   theme={theme === 'dark' ? 'dark' : 'light'}
-  style={{
-    width: '100%',
-    maxWidth: '100vw',
-    top: '60px', /* Match your header height */
-    left: '0',
-    right: '0',
-    padding: '0'
-  }}
-  toastStyle={{
-    width: '100%',
-    margin: '0',
-    borderRadius: '0'
-  }}
 />
 
       {/* Upload Progress Overlay */}
@@ -1157,30 +1139,7 @@ const answerCall = async () => {
       </AnimatePresence>
 
       {/* ------------------------------ Sidebar ------------------------------ */}
-     {/* Mobile Header */}
-<div className="chat-app-mobile-header">
-  <button className="chat-app-sidebar-toggle" onClick={toggleSidebar}>
-    ☰
-  </button>
-  <div className="chat-app-mobile-title">
-    {active || "Select a user"}
-  </div>
-  <div className="chat-app-mobile-status">
-    <span className={`chat-app-status ${isConnected ? "chat-app-on" : "chat-app-off"}`}></span>
-  </div>
-</div>
-
-{/* Sidebar Overlay */}
-<div 
-  className={`chat-app-sidebar-overlay ${sidebarOpen ? 'active' : ''}`}
-  onClick={toggleSidebar}
-/>
-
-{/* Sidebar */}
-<div className={`chat-app-sidebar ${sidebarOpen ? 'active' : ''}`}>
-  <button className="chat-app-sidebar-close" onClick={toggleSidebar}>
-    ×
-  </button>
+     
       <motion.aside 
         className="chat-app-sidebar"
         initial={{ x: -50, opacity: 0 }}
@@ -1574,7 +1533,7 @@ const answerCall = async () => {
           onChange={handleProfileImageUpload}
         />
       </motion.aside>
-      </div>
+
       {/* ---------------------------- Chat section ---------------------------- */}
       <motion.main 
         className="chat-app-main"
