@@ -1136,11 +1136,11 @@
   }
 .chat-app-input button{
   font-weight:300px;
-  padding: 4px 4px;
+  padding: 2px 2px;
   gap: 1.5px;
 }
     .chat-app-sidebar-toggle {
-        margin-left: 150px;
+        margin-left: 140px;
         margin-top: 12px;
         font-size: 10px;
         padding: 8px;
