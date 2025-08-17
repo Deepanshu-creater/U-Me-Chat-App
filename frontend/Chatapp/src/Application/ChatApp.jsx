@@ -969,6 +969,23 @@ const answerCall = async () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
+{/* Hidden file inputs */}
+        <input 
+          ref={fileInputRef}
+          type="file"
+          accept="*/*"
+          style={{ display: "none" }}
+          onChange={handleFileUpload}
+        />
+        
+        <input 
+          ref={profileInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={handleProfileImageUpload}
+        />
+
      {isMobile && (
       <div className="chat-app-mobile-header">
         <button 
@@ -1547,23 +1564,6 @@ const answerCall = async () => {
         >
           U&Me
         </motion.div>
-        
-        {/* Hidden file inputs */}
-        <input 
-          ref={fileInputRef}
-          type="file"
-          accept="*/*"
-          style={{ display: "none" }}
-          onChange={handleFileUpload}
-        />
-        
-        <input 
-          ref={profileInputRef}
-          type="file"
-          accept="image/*"
-          style={{ display: "none" }}
-          onChange={handleProfileImageUpload}
-        />
       </motion.aside>
       )}
  {isMobile && sidebarOpen && (
