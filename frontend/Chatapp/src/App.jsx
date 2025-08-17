@@ -392,12 +392,7 @@ const contactMethods = [
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-container">
-          <div className="hero-content">
-            <div className="hero-badge">
-              <Star size={16} />
-              <span>Rated #1 Chat App 2025</span>
-            </div>
-            
+          <div className="hero-content"> 
             <h1 className="hero-title">
               Connect Globally,
               <span className="gradient-text"> Chat Locally</span>
