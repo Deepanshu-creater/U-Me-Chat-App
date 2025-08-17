@@ -302,7 +302,7 @@ button, .button {
 .hero-title {
   font-size: clamp(2.5rem, 5vw, 3.5rem);
   margin-bottom: 1.5rem;
-  line-height: 1.2;
+  line-height: 2.0;
   color: var(--text);
 }
 
@@ -1007,12 +1007,19 @@ body.dark .footer-bottom {
   
   .hero-title {
     font-size: 2rem;
+    margin-top:20px;
   }
   
   .hero-actions button {
     width: 100%;
   }
   
+ .about-image {
+    flex: 1;
+    height: 250px;
+    width: 255px;
+    margin-bottom: 15px;
+}
   .footer-brand {
     min-width: auto;
     text-align: center;
