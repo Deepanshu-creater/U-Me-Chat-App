@@ -969,6 +969,18 @@ const answerCall = async () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
+      <ToastContainer 
+  position="top-right"
+  autoClose={5000}
+  hideProgressBar={false}
+  newestOnTop={false}
+  closeOnClick
+  rtl={false}
+  pauseOnFocusLoss
+  draggable
+  pauseOnHover
+  theme={theme === 'dark' ? 'dark' : 'light'}
+/>
 {/* Hidden file inputs */}
         <input 
           ref={fileInputRef}
@@ -986,29 +998,30 @@ const answerCall = async () => {
           onChange={handleProfileImageUpload}
         />
 
-     {isMobile && (
+         {isMobile && (
       <div className="chat-app-mobile-header">
-        <button 
-          className="chat-app-sidebar-toggle"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
-        >
+        <button onClick={() => setSidebarOpen(!sidebarOpen)}>
           {sidebarOpen ? "✕" : "☰"}
         </button>
-        </div>
+        
+        {/* Only show these controls when chat is active (not in sidebar) */}
+        {!sidebarOpen && active && (
+          <div className="chat-app-mobile-controls">
+            <button onClick={toggleTheme}>
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+            <button onClick={() => startCall(false)} disabled={isInCall}>
+              <Phone size={18} />
+            </button>
+            <button onClick={() => startCall(true)} disabled={isInCall}>
+              <Video size={18} />
+            </button>
+          </div>
+        )}
+      </div>
     )}
-      <ToastContainer 
-  position="top-right"
-  autoClose={5000}
-  hideProgressBar={false}
-  newestOnTop={false}
-  closeOnClick
-  rtl={false}
-  pauseOnFocusLoss
-  draggable
-  pauseOnHover
-  theme={theme === 'dark' ? 'dark' : 'light'}
-/>
+
+
 
       {/* Upload Progress Overlay */}
       <AnimatePresence>
