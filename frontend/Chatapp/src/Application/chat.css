@@ -1089,7 +1089,7 @@
 
   /* Main Content */
   .chat-app-main {
-    height: calc(100vh - 60px);
+    height: 100vh;
     display: flex;
     flex-direction: column;
     position: fixed;
