@@ -1136,11 +1136,11 @@
   }
 .chat-app-input button{
   font-weight:300px;
-  padding: 6px 10px;
+  padding: 4px 6px;
 }
 .chat-app-sidebar-toggle{
-  margin-left:0px;
-  margin-top:15px;
+  margin-left:135px;
+  margin-top:12px;
 }
 
   /* Upload Overlay */
