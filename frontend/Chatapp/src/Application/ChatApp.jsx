@@ -955,7 +955,7 @@ const answerCall = async () => {
     >
 
       <ToastContainer 
-  position="top-right"
+  position="top-center"
   autoClose={5000}
   hideProgressBar={false}
   newestOnTop={false}
@@ -965,6 +965,19 @@ const answerCall = async () => {
   draggable
   pauseOnHover
   theme={theme === 'dark' ? 'dark' : 'light'}
+  style={{
+    width: '100%',
+    maxWidth: '100vw',
+    top: '60px', /* Match your header height */
+    left: '0',
+    right: '0',
+    padding: '0'
+  }}
+  toastStyle={{
+    width: '100%',
+    margin: '0',
+    borderRadius: '0'
+  }}
 />
 
       {/* Upload Progress Overlay */}
