@@ -1002,321 +1002,160 @@
 /* ================== MOBILE RESPONSIVE STYLES ================== */
 /* General mobile styles (applies to all mobile devices up to 768px) */
 /* ================== MOBILE RESPONSIVE STYLES ================== */
+/* ================ MOBILE RESPONSIVE STYLES ================ */
 @media screen and (max-width: 768px) {
   .chat-app-layout {
-    display: grid;
-    grid-template-rows: auto 1fr;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     height: 100vh;
-    min-height: -webkit-fill-available;
-    padding: 
-      env(safe-area-inset-top) 
-      env(safe-area-inset-right) 
-      env(safe-area-inset-bottom) 
-      env(safe-area-inset-left);
+    position: relative;
+    overflow: hidden;
   }
 
+  /* Mobile Header */
+  .chat-app-mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--input-border);
+    z-index: 100;
+  }
+
+  /* Sidebar Toggle Button */
+  .chat-app-sidebar-toggle {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    padding: 8px;
+    cursor: pointer;
+  }
+
+  /* Sidebar (Hidden by default) */
   .chat-app-sidebar {
-    grid-row: 1;
-    grid-column: 1;
     position: fixed;
-    width: 80%;
-    max-width: 280px;
+    top: 0;
+    left: 0;
+    width: 280px;
     height: 100vh;
     transform: translateX(-100%);
-    transition: transform 300ms ease-out;
-    z-index: 1100;
-    padding: 
-      max(12px, env(safe-area-inset-top))
-      max(12px, env(safe-area-inset-right))
-      max(12px, env(safe-area-inset-bottom))
-      max(12px, env(safe-area-inset-left));
+    transition: transform 0.3s ease-out;
+    z-index: 200;
+    background: var(--sidebar-bg);
+    backdrop-filter: blur(12px);
+    padding: 16px;
+    overflow-y: auto;
   }
 
-  .chat-app-sidebar[style*="opacity: 1"] {
+  /* Show sidebar when active */
+  .chat-app-sidebar.active {
     transform: translateX(0);
   }
 
-  .chat-app-main {
-    grid-row: 1 / span 2;
-    grid-column: 1;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    height: 100vh;
-  }
-
-  /* Mobile Header Grid */
-  .chat-app-mobile-header {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
+  /* Overlay when sidebar is open */
+  .chat-app-sidebar-overlay {
     position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 150;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .chat-app-sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* Main Chat Area (Full width on mobile) */
+  .chat-app-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    z-index: 1000;
-    padding: 10px 12px;
-    padding-top: max(10px, env(safe-area-inset-top));
+    height: 100%;
   }
 
-  /* Messages Grid */
+  /* Adjust header in main chat area */
+  .chat-app-header {
+    padding: 12px;
+  }
+
+  /* Messages area */
   .chat-app-messages {
-    display: grid;
-    grid-auto-rows: min-content;
-    gap: 12px;
-    padding: 10px;
-    padding-top: 48px; /* Account for header */
-    padding-bottom: 0;
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
   }
 
-  /* Input Area Grid */
+  /* Message bubbles */
+  .chat-app-bubble {
+    max-width: 85%;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+  }
+
+  /* Input area */
   .chat-app-input {
-    display: grid;
-    grid-template-columns: auto 1fr auto auto;
-    gap: 8px;
-    align-items: center;
+    padding: 12px;
+  }
+
+  /* Profile section adjustments */
+  .chat-app-profile-header {
     padding: 10px;
-    padding-bottom: max(10px, env(safe-area-inset-bottom));
   }
 
-  /* Profile Section Grid */
-  .chat-app-profile-section {
-    display: grid;
-    gap: 8px;
+  /* Close button inside sidebar */
+  .chat-app-sidebar-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
   }
 
-  /* User List Grid */
-  .chat-app-people {
-    display: grid;
-    gap: 6px;
-  }
-
-  /* Landscape Orientation Grid */
-  @media (orientation: landscape) {
-    .chat-app-layout {
-      grid-template-columns: 35% 65%;
-      grid-template-rows: 1fr;
-    }
-
-    .chat-app-sidebar {
-      grid-column: 1;
-      width: 100%;
-      max-width: none;
-      transform: none;
-      position: relative;
-    }
-
-    .chat-app-main {
-      grid-column: 2;
-      grid-row: 1;
-    }
-
-    .chat-app-mobile-header {
-      display: none;
-    }
-
-    .chat-app-messages {
-      padding-top: 0;
-    }
-  }
-
-  /* Small Phones Grid Adjustments */
-  @media (max-width: 480px) {
-    .chat-app-sidebar {
-      width: 85%;
-      max-width: 260px;
-    }
-
-    .chat-app-input {
-      grid-template-columns: auto 1fr auto;
-    }
-
-    .chat-app-send-btn {
-      display: none;
-    }
+  /* Typing indicator */
+  .chat-app-typing {
+    padding: 8px 12px;
   }
 }
 
-/* Sidebar Animation Grid Classes */
-.sidebar-enter {
-  transform: translateX(-100%);
-}
-.sidebar-enter-active {
-  transform: translateX(0);
-  transition: transform 300ms ease-out;
-}
-.sidebar-exit {
-  transform: translateX(0);
-}
-.sidebar-exit-active {
-  transform: translateX(-100%);
-  transition: transform 300ms ease-out;
-}
-/* Small phones in portrait (up to 480px) */
-@media screen and (max-width: 480px) and (orientation: portrait) {
+/* ================ SMALL PHONE ADJUSTMENTS ================ */
+@media screen and (max-width: 480px) {
   .chat-app-sidebar {
     width: 85%;
-    max-width: 260px;
-  }
-
-  .chat-app-main {
-    margin-top: 48px;
   }
 
   .chat-app-bubble {
     max-width: 90%;
-    padding: 6px 10px;
-    font-size: 0.8rem;
+    padding: 8px 12px;
+  }
+
+  .chat-app-input {
+    padding: 10px;
   }
 
   .chat-app-input input {
-    padding: 6px 10px;
-    font-size: 0.8rem;
+    padding: 8px 12px;
   }
 
   .chat-app-input button {
-    padding: 6px 10px;
-    font-size: 0.8rem;
-  }
-
-  .chat-app-mobile-title {
-    font-size: 14px;
-  }
-
-  .chat-app-mobile-menu-btn {
-    font-size: 18px;
-    padding: 4px;
-  }
-
-  .webrtc-local-video {
-    width: 20vw;
-    max-width: 80px;
-    height: 12vh;
-    max-height: 50px;
+    padding: 8px 12px;
   }
 }
 
-/* ================== LANDSCAPE & SPECIAL CASES ================== */
-/* Landscape orientation grid layout */
-@media screen and (max-width: 768px) and (orientation: landscape) {
-  .chat-app-layout {
-    grid-template-columns: 35% 65%;
-    grid-template-rows: 1fr;
-  }
-
-  .chat-app-sidebar {
-    grid-column: 1;
-    width: 100%;
-    max-width: 260px;
-    height: 100vh;
-    border-right: 1px solid var(--input-border);
-  }
-
-  .chat-app-main {
-    grid-column: 2;
-    grid-row: 1;
-    width: 100%;
-    margin-top: 0;
-  }
-
-  .chat-app-mobile-header {
-    display: none;
-  }
-
-  /* User list grid adjustment */
-  .chat-app-user-list {
-    grid-row: 1;
-    height: calc(100% - 160px);
-  }
-
-  /* Messages grid adjustment */
-  .chat-app-messages {
-    grid-template-rows: 1fr;
-    height: calc(100% - 70px);
-  }
-
-  /* Video call grid layout */
-  .webrtc-video-container {
-    grid-row: 1;
-    max-height: calc(100% - 90px);
-  }
-
-  .webrtc-local-video {
-    grid-column: 2;
-    grid-row: 1;
-    align-self: end;
-    justify-self: end;
-    width: 20vw;
-    max-width: 90px;
-    height: 15vh;
-    max-height: 50px;
-    margin: 0 12px 80px 0;
-  }
-}
-
-/* Tall aspect ratio phones grid layout */
-@media screen and (max-width: 768px) and (min-aspect-ratio: 9/16) {
-  .chat-app-sidebar {
-    width: 80%;
-    max-width: 280px;
-  }
-
-  .chat-app-main {
-    margin-top: 48px;
-  }
-
-  .webrtc-video-container {
-    grid-row: 1;
-    max-height: calc(100% - 110px);
-  }
-
-  .webrtc-local-video {
-    width: 22vw;
-    max-width: 100px;
-    height: 13vh;
-    max-height: 60px;
-  }
-}
-
-/* Safe area support grid adjustments */
-@supports (padding: max(0px)) {
-  .chat-app-layout {
-    grid-area: safe-area;
-    padding: 
-      env(safe-area-inset-top)
-      env(safe-area-inset-right)
-      env(safe-area-inset-bottom)
-      env(safe-area-inset-left);
-  }
-
-  .chat-app-sidebar {
-    padding: 
-      max(12px, env(safe-area-inset-top))
-      max(12px, env(safe-area-inset-right))
-      max(12px, env(safe-area-inset-bottom))
-      max(12px, env(safe-area-inset-left));
-  }
-
-  .chat-app-main {
-    padding: 
-      0
-      max(12px, env(safe-area-inset-right))
-      max(12px, env(safe-area-inset-bottom))
-      max(12px, env(safe-area-inset-left));
-  }
-
-  .chat-app-mobile-header {
-    padding: 
-      max(10px, env(safe-area-inset-top))
-      max(12px, env(safe-area-inset-right))
-      max(10px, env(safe-area-inset-bottom))
-      max(12px, env(safe-area-inset-left));
-  }
-}
-
-/* Sidebar animation grid classes */
+/* ================ ANIMATIONS ================ */
 .sidebar-enter {
   transform: translateX(-100%);
-  grid-column: 1;
-  grid-row: 1;
 }
 .sidebar-enter-active {
   transform: translateX(0);
@@ -1328,4 +1167,15 @@
 .sidebar-exit-active {
   transform: translateX(-100%);
   transition: transform 300ms ease-out;
+}
+
+/* Pulse animation for voice button */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.7; }
+}
+
+.chat-app-voice-btn.listening {
+  animation: pulse 1.5s infinite;
 }
