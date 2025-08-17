@@ -998,30 +998,17 @@ const answerCall = async () => {
           onChange={handleProfileImageUpload}
         />
 
-         {isMobile && (
+     {isMobile && (
       <div className="chat-app-mobile-header">
-        <button onClick={() => setSidebarOpen(!sidebarOpen)}>
+        <button 
+          className="chat-app-sidebar-toggle"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+        >
           {sidebarOpen ? "✕" : "☰"}
         </button>
-        
-        {/* Only show these controls when chat is active (not in sidebar) */}
-        {!sidebarOpen && active && (
-          <div className="chat-app-mobile-controls">
-            <button onClick={toggleTheme}>
-              {theme === 'dark' ? '☀️' : '🌙'}
-            </button>
-            <button onClick={() => startCall(false)} disabled={isInCall}>
-              <Phone size={18} />
-            </button>
-            <button onClick={() => startCall(true)} disabled={isInCall}>
-              <Video size={18} />
-            </button>
-          </div>
-        )}
-      </div>
+        </div>
     )}
-
-
 
       {/* Upload Progress Overlay */}
       <AnimatePresence>
@@ -1207,6 +1194,20 @@ const answerCall = async () => {
         initial={{ x: -50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
+         style={{
+    ...(isMobile && {
+      background: theme === 'dark' 
+        ? 'rgba(51, 0, 102, 0.95)'  // Dark purple with 95% opacity
+        : 'rgba(230, 204, 255, 0.95)',  // Light lavender with 95% opacity
+      backdropFilter: 'blur(10px)',
+      borderRight: theme === 'dark'
+        ? '1px solid rgba(179, 136, 255, 0.2)'  // Purple accent border
+        : '1px solid rgba(102, 0, 204, 0.1)',
+      boxShadow: theme === 'dark'
+        ? '0 0 20px rgba(179, 136, 255, 0.3)'
+        : '0 0 20px rgba(102, 0, 204, 0.2)'
+    })
+  }}
       >
         {/* Profile Section - Top */}
         <div className="chat-app-profile-section">
@@ -1594,6 +1595,7 @@ const answerCall = async () => {
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         {/* Header */}
+        {(!isMobile || !sidebarOpen) && (
         <header className="chat-app-header">
           <div className="chat-app-header-user">
             {active && (
@@ -1667,7 +1669,7 @@ const answerCall = async () => {
             ></motion.span>
           </div>
         </header>
-
+        )}
         {/* Message list */}
         <section className="chat-app-messages">
           <AnimatePresence initial={false}>
