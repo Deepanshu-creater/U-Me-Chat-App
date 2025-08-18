@@ -969,8 +969,8 @@ const answerCall = async () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <ToastContainer 
-  position="top-right"
+    <ToastContainer 
+  position={isMobile ? "top-right" : "top-center"}
   autoClose={5000}
   hideProgressBar={false}
   newestOnTop={false}
@@ -980,6 +980,7 @@ const answerCall = async () => {
   draggable
   pauseOnHover
   theme={theme === 'dark' ? 'dark' : 'light'}
+  className="chat-app-toast-container"
 />
 {/* Hidden file inputs */}
         <input 
@@ -1793,10 +1794,6 @@ const answerCall = async () => {
           )}
         </motion.form> 
       </motion.main>
-       <ToastContainer 
-      position={isMobile ? "top-right" : "top-center"}
-      className="chat-app-toast-container"
-    />
     </motion.div>
   );
 }
