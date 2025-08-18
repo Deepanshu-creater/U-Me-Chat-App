@@ -263,6 +263,7 @@ button, .button {
 /* Hero Section */
 .hero {
   padding: 6rem 1.5rem 4rem;
+  margin:5px;
   background: var(--bg-secondary);
 }
 
@@ -501,6 +502,8 @@ body.dark .phone-mockup {
 /* Features Section */
 .features {
   background: var(--bg-primary);
+  margin:5px;
+  padding:10px;
 }
 
 .features-grid {
@@ -560,6 +563,8 @@ body.dark .feature-icon {
 /* About Section */
 .about {
   background: var(--bg-secondary);
+  margin:5px;
+  padding:10px;
 }
 
 .about-content {
@@ -645,6 +650,8 @@ body.dark .feature-icon {
 /* Testimonials */
 .testimonials {
   background: var(--bg-primary);
+  margin:5px;
+  padding:10px;
 }
 
 .testimonials-grid {
@@ -705,6 +712,8 @@ body.dark .feature-icon {
 /* Contact Section */
 .contact {
   background: var(--bg-secondary);
+  margin:5px;
+  padding:10px;
 }
 
 .contact-content {
