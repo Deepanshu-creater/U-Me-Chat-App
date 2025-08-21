@@ -276,7 +276,7 @@ const handleNavigateBackFromInfo = () => {
   ];
   const stats = [
     { number: "50M+", label: "Active Users" },
-    { number: "180+", label: "Countries" },
+    { number: "185+", label: "Countries" },
     { number: "99.99%", label: "Uptime" },
     { number: "500ms", label: "Avg Response" }
   ];

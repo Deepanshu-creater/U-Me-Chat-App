@@ -30,7 +30,7 @@ const messageSchema = new mongoose.Schema({
     enum: ["text", "file"], 
     default: "text" 
   },
-  // File-specific fields
+ 
   fileUrl: { 
     type: String, 
     required: false 
