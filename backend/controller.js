@@ -64,7 +64,7 @@ const forgotPassword = async (req, res) => {
       .select('+resetToken +resetTokenExpiry +email');
     
     if (!user) {
-      // Security: Generic response whether user exists or not
+      
       return res.status(200).json({ 
         message: 'If this username exists, a reset link has been sent' 
       });

@@ -979,7 +979,8 @@
 
 .webrtc-control-btn.muted, .webrtc-control-btn.disabled {
   background: var(--status-off);
-  color: #ffffff;
+  color: 
+  #ffffff;
 }
 
 .Toastify__toast-container {
