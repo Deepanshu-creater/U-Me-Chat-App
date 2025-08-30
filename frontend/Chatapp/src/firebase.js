@@ -4,13 +4,13 @@ import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 // ✅ Firebase config comes from Vercel env vars
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyCPrPjvUCJWs397GsOluN3rhv1XTwfT7dI",
+  authDomain: "u-me-chatapp.firebaseapp.com",
+  projectId: "u-me-chatapp",
+  storageBucket: "u-me-chatapp.firebasestorage.app",
+  messagingSenderId: "530840445554",
+  appId: "1:530840445554:web:91f48d687d012ecf5818eb",
+  measurementId: "G-5RXMEGHZ8K"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -20,7 +20,7 @@ export const messaging = getMessaging(app);
 export const requestForToken = async () => {
   try {
     const token = await getToken(messaging, {
-      vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
+      vapidKey:"BFpk8Dg8HWXgeutGefNXDm3XqaJniZ7bKQypWq3XH71FL0K3HY5klIQzJuFNabCyn8VXv0e0taeInA8TxeYhvGU"
     });
     return token;
   } catch (err) {
