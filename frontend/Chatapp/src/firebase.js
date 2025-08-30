@@ -1,8 +1,8 @@
 // src/firebase.js
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
-require('dotenv').config();
 
+// ✅ Firebase config comes from Vercel env vars
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -15,11 +15,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const messaging = getMessaging(app);
 
-// Get FCM token for this browser
+// ✅ Request browser token
 export const requestForToken = async () => {
   try {
     const token = await getToken(messaging, {
-      vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY, // get from Firebase console → Cloud Messaging → Web Push certs
+      vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
     });
     return token;
   } catch (err) {
@@ -28,7 +28,7 @@ export const requestForToken = async () => {
   }
 };
 
-// Foreground messages
+// ✅ Foreground messages
 export const onMessageListener = () =>
   new Promise((resolve) => {
     onMessage(messaging, (payload) => resolve(payload));
