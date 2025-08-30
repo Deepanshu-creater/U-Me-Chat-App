@@ -5,8 +5,10 @@ const http = require("http");
 const express = require("express");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const Token = require('./schema')
 const mongoose = require("mongoose");
 const multer = require("multer");
+const {sendNotification} = require("./firebaseAdmin");
 const { v2: cloudinary } = require("cloudinary");
 require("dotenv").config();
 
@@ -254,6 +256,34 @@ app.delete("/remove-profile/:username", async (req, res) => {
   }
 });
 
+//Notification-setup//
+app.post("/save-token", async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).send("No token provided");
+
+    // Save to DB if not exists
+    const existing = await Token.findOne({ token });
+    if (!existing) {
+      await Token.create({ token });
+    }
+
+    res.status(200).send("Token saved successfully");
+  } catch (error) {
+    res.status(500).send("Error saving token: " + error.message);
+  }
+});
+
+// Send Notification (example API)
+app.post("/send-notification", async (req, res) => {
+  try {
+    const { token, title, body } = req.body;
+    await sendNotification(token, { title, body });
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 // Get all profile images
 app.get("/profile-images", async (req, res) => {
   try {

@@ -47,6 +47,12 @@ let userdata = mongoose.Schema({
   paid: {
     type: Boolean,
     default: false
+  },
+
+  token: { 
+    type: String, 
+    required: true, 
+    unique: true
   }
 }, { timestamps: true });  // Added timestamps for better tracking
 

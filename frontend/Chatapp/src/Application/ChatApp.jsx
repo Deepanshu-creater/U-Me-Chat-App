@@ -4,6 +4,7 @@ import { User, Phone, Video, Upload, Trash2, Paperclip, PhoneOff, VideoOff, Mic,
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { requestForToken } from "./firebase";
 import { motion, AnimatePresence } from "framer-motion";
 import "./chat.css";
 
@@ -303,6 +304,16 @@ const handleFileUpload = async (event) => {
     
     loadProfileImages();
   }, []);
+
+
+  /************Notification-setup****************/
+  useEffect(() => {
+  requestForToken().then((token) => {
+    if (token) {
+      axios.post("/api/save-token", { token, userId: loggedInUser.id });
+    }
+  });
+}, []);
 
   /* ====================== Voice Input Setup ====================== */
   useEffect(() => {
