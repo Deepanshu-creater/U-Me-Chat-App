@@ -6,6 +6,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCPrPjvUCJWs397GsOluN3rhv1XTwfT7dI",
   authDomain: "u-me-chatapp.firebaseapp.com",
   projectId: "u-me-chatapp",
+  storageBucket: "u-me-chatapp.firebasestorage.app",
   messagingSenderId: "530840445554",
   appId: "1:530840445554:web:91f48d687d012ecf5818eb",
 };
@@ -17,7 +18,7 @@ const messaging = getMessaging(app);
 export const requestPermissionAndToken = async () => {
   try {
     const token = await getToken(messaging, {
-      vapidKey: "YOUR_VAPID_KEY_HERE",
+      vapidKey: "BFpk8Dg8HWXgeutGefNXDm3XqaJniZ7bKQypWq3XH71FL0K3HY5klIQzJuFNabCyn8VXv0e0taeInA8TxeYhvGU",
     });
     console.log("FCM Token:", token);
     return token;
