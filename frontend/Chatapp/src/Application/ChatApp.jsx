@@ -4,7 +4,7 @@ import { User, Phone, Video, Upload, Trash2, Paperclip, PhoneOff, VideoOff, Mic,
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { requestForToken } from "./firebase";
+import { requestForToken } from "../firebase";
 import { motion, AnimatePresence } from "framer-motion";
 import "./chat.css";
 
