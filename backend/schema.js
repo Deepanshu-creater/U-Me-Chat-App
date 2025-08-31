@@ -48,12 +48,6 @@ let userdata = mongoose.Schema({
     type: Boolean,
     default: false
   },
-
-  token: { 
-    type: String, 
-    required: true, 
-    unique: true
-  }
 }, { timestamps: true });  // Added timestamps for better tracking
 
 let Appmodel = mongoose.model("userinformation", userdata);

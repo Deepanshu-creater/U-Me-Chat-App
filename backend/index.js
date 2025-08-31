@@ -5,7 +5,6 @@ const http = require("http");
 const express = require("express");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const Token = require('./schema')
 const mongoose = require("mongoose");
 const multer = require("multer");
 const {sendNotification} = require("./firebaseAdmin");
@@ -37,7 +36,8 @@ const resetPassword = require("./controller");
  *         MODELS          *
  * ======================== */
 
-const Appmodel = require("./schema");         // User model
+const Appmodel = require("./schema");       // User model
+const Tokenmodel = require("./token");   // Token model
 const MessageModel = require("./msgschema");  // Message model
 const translationLimitMiddleware = require("./translationmiddleware");
 const authmiddleware = require('./authmiddleware');
@@ -263,9 +263,9 @@ app.post("/save-token", async (req, res) => {
     if (!token) return res.status(400).send("No token provided");
 
     // Save to DB if not exists
-    const existing = await Token.findOne({ token });
+    const existing = await Tokenmodel.findOne({ token });
     if (!existing) {
-      await Token.create({ token });
+      await Tokenmodel.create({ token });
     }
 
     res.status(200).send("Token saved successfully");
