@@ -8,6 +8,10 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173, // or your preferred port
   },
+   alias: {
+      'firebase/app': 'firebase/app',
+      'firebase/messaging': 'firebase/messaging',
+    },
   build: {
     outDir: 'dist', 
   },
