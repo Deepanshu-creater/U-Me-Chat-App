@@ -5,7 +5,6 @@ import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { requestForToken, onMessageListener } from "../firebase";
-import { requestForToken } from "../firebase";
 import { motion, AnimatePresence } from "framer-motion";
 import "./chat.css";
 
