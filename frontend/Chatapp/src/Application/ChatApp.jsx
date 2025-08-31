@@ -314,7 +314,7 @@ useEffect(() => {
       console.log("FCM Token:", token);
 
       // Save the token to your backend - use currentUser instead of loggedInUser.id
-      axios.post("/api/save-token", { token, userId: currentUser })
+      axios.post(`${SOCKET_URL}/save-token`, { token, userId: currentUser })
         .then(() => console.log("Token saved successfully"))
         .catch((err) => console.error("Error saving token:", err));
     }
