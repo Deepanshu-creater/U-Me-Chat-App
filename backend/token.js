@@ -5,6 +5,10 @@ let usertoken = mongoose.Schema({
         type: String, 
         required: true, 
         unique: true
+    },
+    username: {
+        type: String,
+        required: true
     }
 });
 

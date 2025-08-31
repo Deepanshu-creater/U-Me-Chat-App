@@ -308,25 +308,45 @@ const handleFileUpload = async (event) => {
 
   /************Notification-setup****************/
 useEffect(() => {
-  // Request token when app loads
+  // Only run if currentUser exists
+  if (!currentUser) return;
+
   requestForToken().then((token) => {
     if (token) {
       console.log("FCM Token:", token);
 
-      // Save the token to your backend with username instead of userId
-      axios.post(`${SOCKET_URL}/save-token`, { token, username: currentUser?.username })
-        .then(() => console.log("Token saved successfully"))
-        .catch((err) => console.error("Error saving token:", err));
+      // Save the token to your backend
+      axios.post(`${SOCKET_URL}/save-token`, { 
+        token, 
+        username: currentUser // Use currentUser directly
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then((response) => {
+        console.log("Token saved successfully:", response.data);
+      })
+      .catch((err) => {
+        console.error("Error saving token:", err);
+        console.error("Error response:", err.response?.data);
+      });
     }
+  }).catch((err) => {
+    console.error("Error getting token:", err);
   });
+
   // Listen for foreground messages
-  onMessageListener()
+  const messageListener = onMessageListener()
     .then((payload) => {
       console.log("Foreground notification:", payload);
-      alert(payload.notification?.title || "New message received!");
+      // Use toast instead of alert for better UX
+      toast.info(payload.notification?.title || "New message received!");
     })
     .catch((err) => console.error("Notification listener error:", err));
-}, [currentUser]);
+
+  return () => {};
+}, [currentUser]); 
 
   /* ====================== Voice Input Setup ====================== */
   useEffect(() => {

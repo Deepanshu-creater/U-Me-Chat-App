@@ -259,13 +259,16 @@ app.delete("/remove-profile/:username", async (req, res) => {
 //Notification-setup//
 app.post("/save-token", async (req, res) => {
   try {
-    const { token } = req.body;
+    const { token, username } = req.body; // Add username
     if (!token) return res.status(400).send("No token provided");
 
-    // Save to DB if not exists
+    // Save to DB if not exists - update to include username
     const existing = await Tokenmodel.findOne({ token });
     if (!existing) {
-      await Tokenmodel.create({ token });
+      await Tokenmodel.create({ token, username }); // Add username
+    } else {
+      // Update existing token with username if needed
+      await Tokenmodel.updateOne({ token }, { username });
     }
 
     res.status(200).send("Token saved successfully");
@@ -273,6 +276,7 @@ app.post("/save-token", async (req, res) => {
     res.status(500).send("Error saving token: " + error.message);
   }
 });
+
 
 // Send Notification (example API)
 app.post("/send-notification", async (req, res) => {
