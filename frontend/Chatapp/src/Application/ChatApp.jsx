@@ -313,13 +313,12 @@ useEffect(() => {
     if (token) {
       console.log("FCM Token:", token);
 
-      // Save the token to your backend - use currentUser instead of loggedInUser.id
-      axios.post(`${SOCKET_URL}/save-token`, { token, userId: currentUser })
+      // Save the token to your backend with username instead of userId
+      axios.post(`${SOCKET_URL}/save-token`, { token, username: currentUser?.username })
         .then(() => console.log("Token saved successfully"))
         .catch((err) => console.error("Error saving token:", err));
     }
   });
-
   // Listen for foreground messages
   onMessageListener()
     .then((payload) => {
