@@ -308,45 +308,61 @@ const handleFileUpload = async (event) => {
 
   /************Notification-setup****************/
 useEffect(() => {
-  // Only run if currentUser exists
-  if (!currentUser) return;
+  const setupNotifications = async () => {
+    if (!currentUser) {
+      console.log("No user logged in, skipping notification setup");
+      return;
+    }
 
-  requestForToken().then((token) => {
-    if (token) {
-      console.log("FCM Token:", token);
+    try {
+      const token = await requestForToken();
+      if (!token) {
+        console.log("No FCM token received");
+        return;
+      }
 
-      // Save the token to your backend
-      axios.post(`${SOCKET_URL}/save-token`, { 
-        token, 
-        username: currentUser // Use currentUser directly
+      console.log("FCM Token received:", token);
+      console.log("Attempting to save token for user:", currentUser);
+      
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      const response = await axios.post(`${SOCKET_URL}/save-token`, {
+        token,
+        username: currentUser
       }, {
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json'
         }
-      })
-      .then((response) => {
-        console.log("Token saved successfully:", response.data);
-      })
-      .catch((err) => {
-        console.error("Error saving token:", err);
-        console.error("Error response:", err.response?.data);
       });
+
+      clearTimeout(timeoutId);
+      console.log("Token save successful:", response.data);
+      
+    } catch (error) {
+      console.error("Token save ERROR:", error);
+      
+      if (error.code === 'ECONNABORTED') {
+        console.error("Request timeout - server might be down");
+      } else if (error.response) {
+        // Server responded with error status
+        console.error("Server error response:", error.response.status, error.response.data);
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error("No response from server - check if backend is running");
+        console.error("Request was made to:", error.config.url);
+      } else {
+        // Something else happened
+        console.error("Unexpected error:", error.message);
+      }
     }
-  }).catch((err) => {
-    console.error("Error getting token:", err);
-  });
+  };
 
-  // Listen for foreground messages
-  const messageListener = onMessageListener()
-    .then((payload) => {
-      console.log("Foreground notification:", payload);
-      // Use toast instead of alert for better UX
-      toast.info(payload.notification?.title || "New message received!");
-    })
-    .catch((err) => console.error("Notification listener error:", err));
+  setupNotifications();
 
-  return () => {};
-}, [currentUser]); 
+}, [currentUser, SOCKET_URL]); // Add SOCKET_URL as dependency
 
   /* ====================== Voice Input Setup ====================== */
   useEffect(() => {
