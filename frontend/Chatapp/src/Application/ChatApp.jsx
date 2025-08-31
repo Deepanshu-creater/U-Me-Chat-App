@@ -307,14 +307,14 @@ const handleFileUpload = async (event) => {
 
 
   /************Notification-setup****************/
-   useEffect(() => {
+useEffect(() => {
   // Request token when app loads
   requestForToken().then((token) => {
     if (token) {
       console.log("FCM Token:", token);
 
-      // Save the token to your backend
-      axios.post("/api/save-token", { token, userId: loggedInUser.id })
+      // Save the token to your backend - use currentUser instead of loggedInUser.id
+      axios.post("/api/save-token", { token, userId: currentUser })
         .then(() => console.log("Token saved successfully"))
         .catch((err) => console.error("Error saving token:", err));
     }
@@ -327,7 +327,8 @@ const handleFileUpload = async (event) => {
       alert(payload.notification?.title || "New message received!");
     })
     .catch((err) => console.error("Notification listener error:", err));
-}, [loggedInUser.id]);
+}, [currentUser]);
+
   /* ====================== Voice Input Setup ====================== */
   useEffect(() => {
     // Check if browser supports speech recognition
