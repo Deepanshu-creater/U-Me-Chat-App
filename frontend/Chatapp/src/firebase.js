@@ -22,7 +22,7 @@ export const requestForToken = async () => {
     const token = await getToken(messaging, {
       vapidKey:"BFpk8Dg8HWXgeutGefNXDm3XqaJniZ7bKQypWq3XH71FL0K3HY5klIQzJuFNabCyn8VXv0e0taeInA8TxeYhvGU"
     });
-    return token;
+    console.log("FCM Token:", token);
   } catch (err) {
     console.error("FCM Token Error:", err);
     return null;

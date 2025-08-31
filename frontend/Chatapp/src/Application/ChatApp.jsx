@@ -4,6 +4,7 @@ import { User, Phone, Video, Upload, Trash2, Paperclip, PhoneOff, VideoOff, Mic,
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { requestForToken, onMessageListener } from "../firebase";
 import { requestForToken } from "../firebase";
 import { motion, AnimatePresence } from "framer-motion";
 import "./chat.css";
@@ -307,14 +308,27 @@ const handleFileUpload = async (event) => {
 
 
   /************Notification-setup****************/
-  useEffect(() => {
+   useEffect(() => {
+  // Request token when app loads
   requestForToken().then((token) => {
     if (token) {
-      axios.post("/api/save-token", { token, userId: loggedInUser.id });
+      console.log("FCM Token:", token);
+
+      // Save the token to your backend
+      axios.post("/api/save-token", { token, userId: loggedInUser.id })
+        .then(() => console.log("Token saved successfully"))
+        .catch((err) => console.error("Error saving token:", err));
     }
   });
-}, []);
 
+  // Listen for foreground messages
+  onMessageListener()
+    .then((payload) => {
+      console.log("Foreground notification:", payload);
+      alert(payload.notification?.title || "New message received!");
+    })
+    .catch((err) => console.error("Notification listener error:", err));
+}, [loggedInUser.id]);
   /* ====================== Voice Input Setup ====================== */
   useEffect(() => {
     // Check if browser supports speech recognition
