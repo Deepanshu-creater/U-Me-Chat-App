@@ -48,6 +48,37 @@ let userdata = mongoose.Schema({
     type: Boolean,
     default: false
   },
+  
+  fcmTokens: [{
+    token: {
+      type: String,
+      required: true
+    },
+    deviceId: {
+      type: String,
+      required: false // Optional: to identify different devices
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    },
+    active: {
+      type: Boolean,
+      default: true
+    }
+  }],
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  translationCount: {
+    type: Number,
+    default: 0
+  },
+  paid: {
+    type: Boolean,
+    default: false
+  },
 }, { timestamps: true });  // Added timestamps for better tracking
 
 let Appmodel = mongoose.model("userinformation", userdata);

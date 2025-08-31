@@ -36,8 +36,7 @@ const resetPassword = require("./controller");
  *         MODELS          *
  * ======================== */
 
-const Appmodel = require("./schema");       // User model
-const Tokenmodel = require("./token");   // Token model
+const Appmodel = require("./schema");       // User model // Token model
 const MessageModel = require("./msgschema");  // Message model
 const translationLimitMiddleware = require("./translationmiddleware");
 const authmiddleware = require('./authmiddleware');
@@ -259,20 +258,46 @@ app.delete("/remove-profile/:username", async (req, res) => {
 //Notification-setup//
 app.post("/save-token", async (req, res) => {
   try {
-    const { token, username } = req.body; // Add username
-    if (!token) return res.status(400).send("No token provided");
-
-    // Save to DB if not exists - update to include username
-    const existing = await Tokenmodel.findOne({ token });
-    if (!existing) {
-      await Tokenmodel.create({ token, username }); // Add username
-    } else {
-      // Update existing token with username if needed
-      await Tokenmodel.updateOne({ token }, { username });
+    const { token, username, deviceId } = req.body;
+    
+    if (!token || !username) {
+      return res.status(400).send("Token and username are required");
     }
 
-    res.status(200).send("Token saved successfully");
+    // Find the user
+    const user = await Appmodel.findOne({ username });
+    
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    // Check if token already exists for this user
+    const existingToken = user.fcmTokens.find(t => t.token === token);
+    
+    if (existingToken) {
+      // Update existing token if needed
+      existingToken.active = true;
+      existingToken.createdAt = new Date();
+      if (deviceId) existingToken.deviceId = deviceId;
+    } else {
+      // Add new token
+      user.fcmTokens.push({
+        token,
+        deviceId: deviceId || 'unknown',
+        active: true
+      });
+    }
+
+    // Save the user document
+    await user.save();
+
+    res.status(200).json({
+      message: "Token saved successfully",
+      totalTokens: user.fcmTokens.length
+    });
+    
   } catch (error) {
+    console.error("Error saving token:", error);
     res.status(500).send("Error saving token: " + error.message);
   }
 });
