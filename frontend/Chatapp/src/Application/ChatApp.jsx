@@ -221,7 +221,7 @@ const handleFileUpload = async (event) => {
   if (!file || !active) return;
 
   // Validate file size (10MB limit for general files)
-  if (file.size > 10 * 1024 * 1024) {
+  if (file.size > 10 * 1024 *1024) {
      toast.error('File size should be less than 10MB');
     return;
   }
