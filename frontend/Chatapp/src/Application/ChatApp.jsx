@@ -199,7 +199,7 @@ const uploadFileToBackend = async (file, isProfileImage = false) => {
 
       // Notify other users about profile update
       socket.current.emit('profile_updated', {
-        username: currentUser,
+      username: currentUser,
         imageUrl: result.url
       });
 
