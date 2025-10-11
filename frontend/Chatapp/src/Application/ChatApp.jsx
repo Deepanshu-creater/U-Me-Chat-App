@@ -190,7 +190,7 @@ const uploadFileToBackend = async (file, isProfileImage = false) => {
         [currentUser]: result.url
       }));
 
-      // Save to backend
+     
       await axios.post(`${SOCKET_URL}/upload-profile`, {
         username: currentUser,
         imageUrl: result.url,
