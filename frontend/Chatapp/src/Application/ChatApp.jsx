@@ -4,7 +4,6 @@ import { User, Phone, Video, Upload, Trash2, Paperclip, PhoneOff, VideoOff, Mic,
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { requestForToken, onMessageListener } from "../firebase";
 import { motion, AnimatePresence } from "framer-motion";
 import "./chat.css";
 
@@ -305,64 +304,6 @@ const handleFileUpload = async (event) => {
     loadProfileImages();
   }, []);
 
-
-  /************Notification-setup****************/
-useEffect(() => {
-  const setupNotifications = async () => {
-    if (!currentUser) {
-      console.log("No user logged in, skipping notification setup");
-      return;
-    }
-
-    try {
-      const token = await requestForToken();
-      if (!token) {
-        console.log("No FCM token received");
-        return;
-      }
-
-      console.log("FCM Token received:", token);
-      console.log("Attempting to save token for user:", currentUser);
-      
-      // Add timeout to prevent hanging requests
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-      const response = await axios.post(`${SOCKET_URL}/save-token`, {
-        token,
-        username: currentUser
-      }, {
-        signal: controller.signal,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      clearTimeout(timeoutId);
-      console.log("Token save successful:", response.data);
-      
-    } catch (error) {
-      console.error("Token save ERROR:", error);
-      
-      if (error.code === 'ECONNABORTED') {
-        console.error("Request timeout - server might be down");
-      } else if (error.response) {
-        // Server responded with error status
-        console.error("Server error response:", error.response.status, error.response.data);
-      } else if (error.request) {
-        // Request was made but no response received
-        console.error("No response from server - check if backend is running");
-        console.error("Request was made to:", error.config.url);
-      } else {
-        // Something else happened
-        console.error("Unexpected error:", error.message);
-      }
-    }
-  };
-
-  setupNotifications();
-
-}, [currentUser, SOCKET_URL]); // Add SOCKET_URL as dependency
 
   /* ====================== Voice Input Setup ====================== */
   useEffect(() => {
