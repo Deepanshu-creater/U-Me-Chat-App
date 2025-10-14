@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
-import { User, Phone, Video, Upload, Trash2, Paperclip, PhoneOff, VideoOff, Mic, MicOff, FileText, X, Image as ImageIcon, File } from "lucide-react";
+import { User, Phone, Video, Upload, Trash2, Paperclip, PhoneOff, VideoOff, Mic, MicOff, FileText, X,Image as ImageIcon, File } from "lucide-react";
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { requestForToken, onMessageListener } from "../firebase";
 import { motion, AnimatePresence } from "framer-motion";
 import "./chat.css";
 
@@ -30,16 +31,16 @@ export default function ChatApp() {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Add this useEffect for mobile detection
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+// Add this useEffect for mobile detection
+useEffect(() => {
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth <= 768);
+  };
+  
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+  return () => window.removeEventListener('resize', checkMobile);
+}, []);
   
   // Upload states
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
@@ -51,7 +52,7 @@ export default function ChatApp() {
   const [speechSupported, setSpeechSupported] = useState(false);
   const recognitionRef = useRef(null);
 
-  // WebRTC States - FIXED
+  // WebRTC States
   const [isInCall, setIsInCall] = useState(false);
   const [isVideoCall, setIsVideoCall] = useState(false);
   const [incomingCall, setIncomingCall] = useState(null);
@@ -59,108 +60,120 @@ export default function ChatApp() {
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   
-  // WebRTC Refs - FIXED
+  // WebRTC Refs
   const peerConnection = useRef(null);
   const localStream = useRef(null);
   const remoteStream = useRef(null);
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
-  const [isCalling, setIsCalling] = useState(false);
 
   const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
-  };
-
-  const bubbleVariants = {
-    sent: {
-      opacity: 0,
-      x: 100,
-      transition: { duration: 0 }
-    },
-    animate: {
-      opacity: 1,
-      x: 0,
-      transition: { type: "spring", stiffness: 500, damping: 30 }
-    }
-  };
-
-  const profileMenuVariants = {
-    hidden: { opacity: 0, y: -10 },
-    visible: { opacity: 1, y: 0 }
-  };
-
-  const callOverlayVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: { opacity: 1, scale: 1 }
-  };
-
-  const pulseRing = {
-    scale: [1, 1.2, 1],
-    opacity: [0.5, 0],
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
     transition: {
-      duration: 1.5,
-      repeat: Infinity,
-      ease: "easeInOut"
+      staggerChildren: 0.1
     }
-  };
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 }
+};
+
+const bubbleVariants = {
+  sent: {
+    opacity: 0,
+    x: 100,
+    transition: { duration: 0 }
+  },
+  animate: {
+    opacity: 1,
+    x: 0,
+    transition: { type: "spring", stiffness: 500, damping: 30 }
+  }
+};
+
+const profileMenuVariants = {
+  hidden: { opacity: 0, y: -10 },
+  visible: { opacity: 1, y: 0 }
+};
+
+const callOverlayVariants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1 }
+};
+
+const pulseRing = {
+  scale: [1, 1.2, 1],
+  opacity: [0.5, 0],
+  transition: {
+    duration: 1.5,
+    repeat: Infinity,
+    ease: "easeInOut"
+  }
+};
+
+const toggleMobileSidebar = () => {
+  setIsMobileSidebarOpen(!isMobileSidebarOpen);
+};
+
+// Close mobile sidebar
+const closeMobileSidebar = () => {
+  setIsMobileSidebarOpen(false);
+};
 
   /* ====================== Theme toggling ====================== */
   const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem('chatTheme', newTheme);
-  };
-
+  const newTheme = theme === 'dark' ? 'light' : 'dark';
+  setTheme(newTheme);
+  localStorage.setItem('chatTheme', newTheme);
+};
   /* ====================== Cloudinary Upload Functions ====================== */
-  const uploadFileToBackend = async (file, isProfileImage = false) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('isProfileImage', isProfileImage.toString());
-    formData.append('username', currentUser);
-    formData.append('targetUser', active || '');
+  
+  // Upload file to Cloudinary
+  // Replace the entire uploadToCloudinary function with:
+const uploadFileToBackend = async (file, isProfileImage = false) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('isProfileImage', isProfileImage.toString());
+  formData.append('username', currentUser);
+  formData.append('targetUser', active || '');
 
-    try {
-      const response = await axios.post(
-        `${SOCKET_URL}/api/upload`,
-        formData,
-        {
-          onUploadProgress: (progressEvent) => {
-            const progress = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setUploadProgress(progress);
-          }
+  try {
+    const response = await axios.post(
+      `${SOCKET_URL}/api/upload`,
+      formData,
+      {
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadProgress(progress);
         }
-      );
-      
-      return response.data;
-    } catch (error) {
-      console.error('Upload error:', error);
-      throw new Error('Upload failed');
-    }
-  };
-
+      }
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error('Upload error:', error);
+    throw new Error('Upload failed');
+  }
+};
   // Handle profile image upload
   const handleProfileImageUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
+    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
+
       return;
     }
 
+    // Validate file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Image size should be less than 5MB');
       return;
@@ -172,17 +185,20 @@ export default function ChatApp() {
     try {
       const result = await uploadFileToBackend(file, true);
       
+      // Update profile image in state
       setProfileImages(prev => ({
         ...prev,
         [currentUser]: result.url
       }));
 
+      // Save to backend
       await axios.post(`${SOCKET_URL}/upload-profile`, {
         username: currentUser,
         imageUrl: result.url,
         publicId: result.publicId
       });
 
+      // Notify other users about profile update
       socket.current.emit('profile_updated', {
         username: currentUser,
         imageUrl: result.url
@@ -200,57 +216,68 @@ export default function ChatApp() {
   };
 
   // Handle file attachment upload
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file || !active) return;
+  // Handle file attachment upload
+const handleFileUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file || !active) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('File size should be less than 10MB');
-      return;
-    }
+  // Validate file size (10MB limit for general files)
+  if (file.size > 10 * 1024 * 1024) {
+     toast.error('File size should be less than 10MB');
+    return;
+  }
 
-    setIsUploadingFile(true);
+  setIsUploadingFile(true);
+  setUploadProgress(0);
+
+  try {
+    const result = await uploadFileToBackend(file, false);
+    
+    // Create file message - make sure all fields are properly set
+    const fileMessage = {
+      to: active,
+      fileUrl: result.url,
+      fileName: result.originalFilename || file.name,
+      fileSize: result.bytes,
+      fileType: result.resourceType,
+      format: result.format,
+      time: new Date().toISOString(),
+      lang: language,
+      text: "" // Add empty text field to satisfy schema
+    };
+
+    console.log("Sending file message:", fileMessage); // Debug log
+
+    // Send file message through socket
+    socket.current.emit("file_message", fileMessage);
+    
+    toast.success('File uploaded and sent successfully!');
+  } catch (error) {
+    console.error('File upload error:', error);
+    toast.error('Failed to upload file');
+  } finally {
+    setIsUploadingFile(false);
     setUploadProgress(0);
-
-    try {
-      const result = await uploadFileToBackend(file, false);
-      
-      const fileMessage = {
-        to: active,
-        fileUrl: result.url,
-        fileName: result.originalFilename || file.name,
-        fileSize: result.bytes,
-        fileType: result.resourceType,
-        format: result.format,
-        time: new Date().toISOString(),
-        lang: language,
-        text: ""
-      };
-
-      socket.current.emit("file_message", fileMessage);
-      toast.success('File uploaded and sent successfully!');
-    } catch (error) {
-      console.error('File upload error:', error);
-      toast.error('Failed to upload file');
-    } finally {
-      setIsUploadingFile(false);
-      setUploadProgress(0);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+    // Clear file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
-  };
+  }
+};
 
   // Remove profile image
   const handleRemoveProfileImage = async () => {
     try {
+      // Remove from backend
       await axios.delete(`${SOCKET_URL}/remove-profile/${currentUser}`);
       
+      // Update state
       setProfileImages(prev => ({
         ...prev,
         [currentUser]: null
       }));
 
+      // Notify other users
       socket.current.emit('profile_updated', {
         username: currentUser,
         imageUrl: null
@@ -278,18 +305,80 @@ export default function ChatApp() {
     loadProfileImages();
   }, []);
 
+
+  /************Notification-setup****************/
+useEffect(() => {
+  const setupNotifications = async () => {
+    if (!currentUser) {
+      console.log("No user logged in, skipping notification setup");
+      return;
+    }
+
+    try {
+      const token = await requestForToken();
+      if (!token) {
+        console.log("No FCM token received");
+        return;
+      }
+
+      console.log("FCM Token received:", token);
+      console.log("Attempting to save token for user:", currentUser);
+      
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      const response = await axios.post(`${SOCKET_URL}/save-token`, {
+        token,
+        username: currentUser
+      }, {
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      clearTimeout(timeoutId);
+      console.log("Token save successful:", response.data);
+      
+    } catch (error) {
+      console.error("Token save ERROR:", error);
+      
+      if (error.code === 'ECONNABORTED') {
+        console.error("Request timeout - server might be down");
+      } else if (error.response) {
+        // Server responded with error status
+        console.error("Server error response:", error.response.status, error.response.data);
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error("No response from server - check if backend is running");
+        console.error("Request was made to:", error.config.url);
+      } else {
+        // Something else happened
+        console.error("Unexpected error:", error.message);
+      }
+    }
+  };
+
+  setupNotifications();
+
+}, [currentUser, SOCKET_URL]); // Add SOCKET_URL as dependency
+
   /* ====================== Voice Input Setup ====================== */
   useEffect(() => {
+    // Check if browser supports speech recognition
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     
     if (SpeechRecognition) {
       setSpeechSupported(true);
       recognitionRef.current = new SpeechRecognition();
       
+      // Configure speech recognition
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = true;
       recognitionRef.current.maxAlternatives = 1;
       
+      // Set language based on user's selected language
       const speechLang = getSpeechLanguageCode(language);
       recognitionRef.current.lang = speechLang;
 
@@ -302,7 +391,11 @@ export default function ChatApp() {
         for (let i = event.resultIndex; i < event.results.length; i++) {
           transcript += event.results[i][0].transcript;
         }
+        
+        // Update message with the transcript
         setMessage(transcript);
+        
+        // Trigger typing indicator
         if (active && transcript.trim()) {
           handleTyping();
         }
@@ -311,8 +404,12 @@ export default function ChatApp() {
       recognitionRef.current.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
+        
+        // Show user-friendly error messages
         if (event.error === 'not-allowed') {
           alert('Microphone access denied. Please allow microphone access to use voice typing.');
+        } else if (event.error === 'no-speech') {
+          console.log('No speech detected');
         }
       };
 
@@ -409,6 +506,7 @@ export default function ChatApp() {
     if (isListening) {
       recognitionRef.current.stop();
     } else {
+      // Update language before starting
       const speechLang = getSpeechLanguageCode(language);
       recognitionRef.current.lang = speechLang;
       
@@ -432,81 +530,64 @@ export default function ChatApp() {
     ]
   };
 
-  /* ====================== WebRTC Functions - FIXED ====================== */
+  /* ====================== WebRTC Functions ====================== */
   const createPeerConnection = () => {
-    try {
-      peerConnection.current = new RTCPeerConnection(pcConfig);
-      
-      // Add local tracks to peer connection
-      if (localStream.current) {
-        localStream.current.getTracks().forEach(track => {
-          peerConnection.current.addTrack(track, localStream.current);
+    peerConnection.current = new RTCPeerConnection(pcConfig);
+    
+    peerConnection.current.onicecandidate = (event) => {
+      if (event.candidate && active) {
+        socket.current.emit('webrtc_ice_candidate', {
+          to: active,
+          candidate: event.candidate
         });
       }
+    };
 
-      // Handle incoming tracks
-      peerConnection.current.ontrack = (event) => {
-        console.log('Received remote track');
-        remoteStream.current = event.streams[0];
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = remoteStream.current;
-        }
-      };
+    peerConnection.current.ontrack = (event) => {
+      remoteStream.current = event.streams[0];
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = event.streams[0];
+      }
+    };
 
-      // Handle ICE candidates
-      peerConnection.current.onicecandidate = (event) => {
-        if (event.candidate && active) {
-          socket.current.emit('webrtc_ice_candidate', {
-            to: active,
-            candidate: event.candidate
-          });
-        }
-      };
+    peerConnection.current.onconnectionstatechange = () => {
+      const state = peerConnection.current.connectionState;
+      console.log('Peer connection state:', state);
+      switch (state) {
+        case 'connected':
+          setCallStatus('Connected');
+          break;
+        case 'disconnected':
+        case 'failed':
+          setCallStatus(state === 'failed' ? 'Call failed' : 'Call disconnected');
+          setTimeout(cleanupCall, 2000);
+          break;
+        case 'closed':
+          cleanupCall();
+          break;
+        default:
+          // 'connecting' or 'new' can be handled if needed
+          break;
+      }
+    };
 
-      // Handle connection state changes
-      peerConnection.current.onconnectionstatechange = () => {
-        const state = peerConnection.current.connectionState;
-        console.log('Peer connection state:', state);
-        setCallStatus(state.charAt(0).toUpperCase() + state.slice(1));
-        
-        switch (state) {
-          case 'connected':
-            toast.success('Call connected!');
-            break;
-          case 'disconnected':
-          case 'failed':
-            toast.error(`Call ${state}`);
-            setTimeout(cleanupCall, 2000);
-            break;
-          case 'closed':
-            cleanupCall();
-            break;
-        }
-      };
+    peerConnection.current.oniceconnectionstatechange = () => {
+      console.log('ICE connection state:', peerConnection.current.iceConnectionState);
+    };
 
-    } catch (error) {
-      console.error('Error creating peer connection:', error);
-      toast.error('Failed to create peer connection');
+    // Add local stream tracks to peer connection
+    if (localStream.current) {
+      localStream.current.getTracks().forEach(track => {
+        peerConnection.current.addTrack(track, localStream.current);
+      });
     }
   };
 
   const startCall = async (isVideo = false) => {
-    if (!active) {
-      toast.error('Please select a user to call first.');
-      return;
-    }
-
-    if (isInCall || isCalling) {
-      toast.error('You are already in a call.');
-      return;
-    }
-
     try {
-      setIsCalling(true);
-      setCallStatus('Starting call...');
+      setCallStatus('Connecting...');
       setIsVideoCall(isVideo);
       
-      // Get user media
       const constraints = {
         audio: true,
         video: isVideo
@@ -514,104 +595,72 @@ export default function ChatApp() {
 
       localStream.current = await navigator.mediaDevices.getUserMedia(constraints);
       
-      // Set local video stream
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = localStream.current;
       }
 
-      // Create peer connection
       createPeerConnection();
 
-      // Create and set local description
       const offer = await peerConnection.current.createOffer();
       await peerConnection.current.setLocalDescription(offer);
 
-      // Send offer to the other user
       socket.current.emit('webrtc_offer', {
         to: active,
         offer: offer,
-        type: isVideo ? 'video' : 'audio',
-        from: currentUser
+        type: isVideo ? 'video' : 'audio'
       });
 
       setIsInCall(true);
-      setIsCalling(false);
       setCallStatus('Calling...');
-      toast.info(`Calling ${active}...`);
-
     } catch (error) {
       console.error('Error starting call:', error);
-      setIsCalling(false);
       setCallStatus('Failed to start call');
-      
-      let errorMessage = 'Failed to start call';
-      if (error.name === 'NotAllowedError') {
-        errorMessage = 'Microphone/camera access denied. Please allow access to make calls.';
-      } else if (error.name === 'NotFoundError') {
-        errorMessage = 'No microphone/camera found.';
-      } else if (error.name === 'NotReadableError') {
-        errorMessage = 'Camera/microphone is in use by another application.';
-      }
-      
-      toast.error(errorMessage);
-      cleanupCall();
+      toast.error('Failed to start call');
+      setTimeout(() => setCallStatus(''), 3000);
     }
   };
 
-  const answerCall = async () => {
-    if (!incomingCall) return;
+const answerCall = async () => {
+  try {
+    setCallStatus('Connecting...');
+    
+    const constraints = {
+      audio: true,
+      video: incomingCall.type === 'video'
+    };
 
-    try {
-      setCallStatus('Connecting...');
-      
-      // Get user media based on call type
-      const constraints = {
-        audio: true,
-        video: incomingCall.type === 'video'
-      };
-
-      localStream.current = await navigator.mediaDevices.getUserMedia(constraints);
-      
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = localStream.current;
-      }
-
-      // Create peer connection
-      createPeerConnection();
-
-      // Set remote description from the offer
-      await peerConnection.current.setRemoteDescription(incomingCall.offer);
-      
-      // Create and set local answer
-      const answer = await peerConnection.current.createAnswer();
-      await peerConnection.current.setLocalDescription(answer);
-
-      // Send answer back to caller
-      socket.current.emit('webrtc_answer', {
-        to: incomingCall.from,
-        answer: answer
-      });
-
-      setIsInCall(true);
-      setIsVideoCall(incomingCall.type === 'video');
-      setIncomingCall(null);
-      setCallStatus('Connected');
-      toast.success('Call answered!');
-
-    } catch (error) {
-      console.error('Error answering call:', error);
-      setCallStatus('Failed to answer call');
-      
-      let errorMessage = 'Failed to answer call';
-      if (error.name === 'NotAllowedError') {
-        errorMessage = 'Microphone/camera access denied.';
-      }
-      
-      toast.error(errorMessage);
-      rejectCall();
+    localStream.current = await navigator.mediaDevices.getUserMedia(constraints);
+    
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject = localStream.current;
     }
-  };
 
+    createPeerConnection();
+
+    await peerConnection.current.setRemoteDescription(incomingCall.offer);
+    
+    const answer = await peerConnection.current.createAnswer();
+    await peerConnection.current.setLocalDescription(answer);
+
+    socket.current.emit('webrtc_answer', {
+      to: incomingCall.from,
+      answer: answer
+    });
+
+    setIsInCall(true);
+    setIsVideoCall(incomingCall.type === 'video');
+    setIncomingCall(null);
+  } catch (error) {
+    console.error('Error answering call:', error);
+    let msg = `Error answering call: ${error.message}`;
+    if (error.name === 'NotReadableError') {
+      msg = 'Camera or microphone is in use by another application. Please close it and retry.';
+    }
+    toast.error(msg);
+    setCallStatus(''); // Explicitly clear status on failure
+    rejectCall();
+  }
+};
   const rejectCall = () => {
     if (incomingCall) {
       socket.current.emit('webrtc_reject_call', {
@@ -623,18 +672,17 @@ export default function ChatApp() {
   };
 
   const endCall = () => {
-    if (active && isInCall) {
+    if (active) {
       socket.current.emit('webrtc_end_call', {
         to: active
       });
     }
     
     cleanupCall();
-    toast.info('Call ended');
   };
 
   const cleanupCall = () => {
-    // Stop all media tracks
+    // Stop all tracks
     if (localStream.current) {
       localStream.current.getTracks().forEach(track => track.stop());
       localStream.current = null;
@@ -661,7 +709,6 @@ export default function ChatApp() {
 
     // Reset states
     setIsInCall(false);
-    setIsCalling(false);
     setIsVideoCall(false);
     setIncomingCall(null);
     setCallStatus('');
@@ -671,42 +718,31 @@ export default function ChatApp() {
 
   const toggleMute = () => {
     if (localStream.current) {
-      const audioTracks = localStream.current.getAudioTracks();
-      if (audioTracks.length > 0) {
-        audioTracks[0].enabled = !audioTracks[0].enabled;
-        setIsMuted(!audioTracks[0].enabled);
-        toast.info(audioTracks[0].enabled ? 'Unmuted' : 'Muted');
+      const audioTrack = localStream.current.getAudioTracks()[0];
+      if (audioTrack) {
+        audioTrack.enabled = !audioTrack.enabled;
+        setIsMuted(!audioTrack.enabled);
       }
     }
   };
 
   const toggleVideo = () => {
-    if (localStream.current && isVideoCall) {
-      const videoTracks = localStream.current.getVideoTracks();
-      if (videoTracks.length > 0) {
-        videoTracks[0].enabled = !videoTracks[0].enabled;
-        setIsVideoEnabled(videoTracks[0].enabled);
-        toast.info(videoTracks[0].enabled ? 'Video on' : 'Video off');
+    if (localStream.current) {
+      const videoTrack = localStream.current.getVideoTracks()[0];
+      if (videoTrack) {
+        videoTrack.enabled = !videoTrack.enabled;
+        setIsVideoEnabled(videoTrack.enabled);
       }
     }
   };
 
-  /* ====================== Socket Setup - FIXED ====================== */
+  /* ====================== Socket Setup ====================== */
   useEffect(() => {
+    
     if (!socket.current) {
       socket.current = io(SOCKET_URL, {
         query: { username: currentUser },
         transports: ["websocket"],
-      });
-
-      socket.current.on("connect", () => {
-        setIsConnected(true);
-        console.log("Connected to server");
-      });
-
-      socket.current.on("disconnect", () => {
-        setIsConnected(false);
-        console.log("Disconnected from server");
       });
 
       socket.current.on("chat_history", ({ with: user, messages }) => {
@@ -716,21 +752,40 @@ export default function ChatApp() {
         }));
       });
 
+      socket.current.on("disconnect", () => setIsConnected(false));
+
+      // Updated private_message handler with MyMemory API
       socket.current.on("private_message", async (msg) => {
         const other = msg.self ? msg.to : msg.from;
+
         const userLang = language;
         const senderLang = msg.lang || "en";
 
+        console.log("--- Message Received ---");
+        console.log("User's language:", userLang);
+        console.log("Sender's language:", senderLang);
+        console.log("Original message:", msg.text);
+
+        // Translate if languages are different and message is not from self
         if (!msg.self && userLang !== senderLang) {
           try {
+            console.log("Translating from", senderLang, "to", userLang);
             const response = await axios.post(`${SOCKET_URL}/translate`, {
               text: msg.text,
               sourceLang: senderLang,
               targetLang: userLang
-            });
+            },
+           { headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+            }});
+            console.log("Translation result:", response.data);
             msg.translated = response.data.translated || msg.text;
           } catch (error) {
-            console.error("Translation failed:", error);
+            if (error.response?.data?.limitReached) { // Check response.data directly
+    toast.error(`${error.response.data.error}\n${error.response.data.upgradeMessage}`);
+  }else {
+    console.error("Translation failed:", error);
+  }
             msg.translated = msg.text;
           }
         }
@@ -758,7 +813,7 @@ export default function ChatApp() {
         }));
       });
 
-      // Language updates
+      /*********Language updation connection btw user*************/
       socket.current.on("language_update", ({ username, language }) => {
         console.log(`User ${username} changed language to ${language}`);
         if (username === currentUser) {
@@ -767,7 +822,6 @@ export default function ChatApp() {
         }
       });
 
-      // Typing indicators
       socket.current.on("typing", ({ from }) =>
         setTyping((prev) => ({ ...prev, [from]: true }))
       );
@@ -776,75 +830,38 @@ export default function ChatApp() {
         setTyping((prev) => ({ ...prev, [from]: false }))
       );
 
-      /* ====================== WebRTC Socket Events - FIXED ====================== */
-      socket.current.on('webrtc_offer', async ({ from, offer, type }) => {
-        console.log('Received call offer from:', from);
-        
-        // If already in a call, reject the new one
-        if (isInCall) {
-          socket.current.emit('webrtc_reject_call', { to: from });
-          toast.error('You are already in a call');
-          return;
-        }
-
+      // WebRTC Socket Events
+      socket.current.on('webrtc_offer', ({ from, offer, type }) => {
         setIncomingCall({
           from,
           offer,
           type
         });
-        
-        // Play ringtone or show notification
-        toast.info(`Incoming ${type} call from ${from}`, {
-          autoClose: 10000,
-          closeOnClick: false,
-          pauseOnHover: true
-        });
       });
 
       socket.current.on('webrtc_answer', async ({ from, answer }) => {
-        console.log('Received answer from:', from);
-        if (peerConnection.current && peerConnection.current.signalingState !== 'closed') {
-          try {
-            await peerConnection.current.setRemoteDescription(answer);
-            setCallStatus('Connected');
-            toast.success('Call connected!');
-          } catch (error) {
-            console.error('Error setting remote description:', error);
-            toast.error('Failed to establish call connection');
-          }
+        if (peerConnection.current) {
+          await peerConnection.current.setRemoteDescription(answer);
         }
       });
 
-      socket.current.on('webrtc_ice_candidate', async ({ from, candidate }) => {
-        console.log('Received ICE candidate from:', from);
-        if (peerConnection.current && peerConnection.current.remoteDescription) {
-          try {
-            await peerConnection.current.addIceCandidate(candidate);
-          } catch (error) {
-            console.error('Error adding ICE candidate:', error);
-          }
+      socket.current.on('webrtc_ice_candidate', ({ from, candidate }) => {
+        if (peerConnection.current) {
+          peerConnection.current.addIceCandidate(candidate);
         }
       });
 
-      socket.current.on('webrtc_reject_call', ({ from }) => {
-        console.log('Call rejected by:', from);
+      socket.current.on('webrtc_reject_call', () => {
         setCallStatus('Call rejected');
-        toast.info(`${from} rejected your call`);
         setTimeout(() => {
           cleanupCall();
         }, 2000);
       });
 
-      socket.current.on('webrtc_end_call', ({ from }) => {
-        console.log('Call ended by:', from);
-        setCallStatus('Call ended');
-        toast.info(`${from} ended the call`);
-        setTimeout(() => {
-          cleanupCall();
-        }, 2000);
+      socket.current.on('webrtc_end_call', () => {
+        cleanupCall();
       });
 
-      // Load previous active user
       const storedActive = localStorage.getItem("activeUser");
       if (storedActive) {
         setActive(storedActive);
@@ -862,7 +879,7 @@ export default function ChatApp() {
         socket.current = null;
       }
     };
-  }, [currentUser, language, isInCall]);
+  }, [currentUser,language]);
 
   useEffect(() => {
     if (socket.current && socket.current.connected) {
