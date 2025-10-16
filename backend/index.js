@@ -180,17 +180,34 @@ app.post("/create-meeting", async (req, res) => {
       return res.status(400).json({ error: "Username and target user are required" });
     }
 
-    // Create room via VideoSDK API
-    const videoSdkResponse = await axios.post(
-      'https://api.videosdk.live/v2/rooms',
-      {},  // Empty body for basic room creation
-      {
-        headers: {
-          'Authorization': `Bearer ${process.env.VIDEOSDK_API_KEY}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    console.log('Creating VideoSDK room...');
+console.log('API Key set?', !!process.env.VIDEOSDK_API_KEY ? 'Yes' : 'NO - CHECK ENV!');
+console.log('Full headers:', {
+  Authorization: `Bearer ${process.env.VIDEOSDK_API_KEY ? '[REDACTED]' : 'MISSING'}`,
+  'Content-Type': 'application/json'
+});
+  // Generate JWT first (this is your VideoSDK authentication token)
+const jwtToken = jwt.sign(
+  {
+    apikey: process.env.VIDEOSDK_API_KEY,
+    permissions: ['allow_join', 'allow_mod'],
+    version: 2,
+  },
+  process.env.VIDEOSDK_SECRET,
+  { expiresIn: '2h' }
+);
+
+const videoSdkResponse = await axios.post(
+  'https://api.videosdk.live/v2/rooms',
+  {},
+  {
+    headers: {
+      'Authorization': `Bearer ${jwtToken}`,
+      'Content-Type': 'application/json'
+    }
+  }
+);
+
 
     const roomData = videoSdkResponse.data;
     const roomId = roomData.roomId;
@@ -213,25 +230,6 @@ app.post("/create-meeting", async (req, res) => {
     res.status(500).json({ error: "Failed to create meeting" });
   }
 });
-
-// Helper function to generate VideoSDK token
-async function generateVideoSDKToken(meetingId, username) {
-  // This is a simplified token generation
-  // You'll need to implement proper JWT token generation based on VideoSDK documentation
-  // Typically this involves signing with your VideoSDK secret key
-  
-  const payload = {
-    apikey: process.env.VIDEOSDK_API_KEY,
-    permissions: [`allow_join:${meetingId}`, `allow_mod:${meetingId}`],
-    version: 2,
-    roles: ['CRAWLER']
-  };
-
-  // In a real implementation, you would sign this payload with your VideoSDK secret
-  // For now, returning a simple token (replace with actual JWT implementation)
-  return Buffer.from(JSON.stringify(payload)).toString('base64');
-}
-
 /* ======================== *
  *    CLOUDINARY ROUTES    *
  * ======================== */
