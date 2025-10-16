@@ -183,7 +183,7 @@ app.post("/create-meeting", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error creating meeting:", error);
+    console.error("Error creating meeting:", error.response?.data || error.message || error);
     res.status(500).json({ error: "Failed to create meeting" });
   }
 });
