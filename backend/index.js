@@ -1,6 +1,3 @@
-/* ======================== *
- *     IMPORT MODULES      *
- * ======================== */
 const http = require("http");
 const express = require("express");
 const { Server } = require("socket.io");
@@ -9,6 +6,7 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 const {sendNotification} = require("./firebaseAdmin");
 const { v2: cloudinary } = require("cloudinary");
+const axios = require("axios");
 require("dotenv").config();
 
 /* ======================== *
@@ -35,8 +33,7 @@ const resetPassword = require("./controller");
 /* ======================== *
  *         MODELS          *
  * ======================== */
-
-const Appmodel = require("./schema");       // User model // Token model
+const Appmodel = require("./schema");       // User model
 const MessageModel = require("./msgschema");  // Message model
 const translationLimitMiddleware = require("./translationmiddleware");
 const authmiddleware = require('./authmiddleware');
@@ -87,6 +84,7 @@ app.get("/users", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
 /* ======================== *
  *     TRANSLATION ROUTE   *
  * ======================== */
@@ -144,9 +142,73 @@ app.post("/translate", authmiddleware, translationLimitMiddleware , async (req, 
 });
 
 /* ======================== *
+ *    VIDEO SDK ROUTES     *
+ * ======================== */
+app.post("/create-meeting", async (req, res) => {
+  try {
+    const { username, targetUser, isVideo = true } = req.body;
+
+    if (!username || !targetUser) {
+      return res.status(400).json({ error: "Username and target user are required" });
+    }
+
+    // Generate a unique meeting ID
+    const meetingId = `meeting_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Create meeting using VideoSDK API
+    const videoSdkResponse = await axios.post(
+      'https://api.videosdk.live/v2/rooms',
+      {},
+      {
+        headers: {
+          'Authorization': process.env.VIDEOSDK_API_KEY, // Your VideoSDK API key
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    const roomData = videoSdkResponse.data;
+    
+    // Generate token for the meeting (you might need to implement token generation based on VideoSDK requirements)
+    const token = await generateVideoSDKToken(meetingId, username);
+    
+    // Construct meeting URL
+    const meetingUrl = `${process.env.VIDEOSDK_APP_URL || 'https://app.videosdk.live'}/meeting/${roomData.roomId}?token=${token}&name=${username}`;
+
+    res.json({
+      meetingId: roomData.roomId,
+      token: token,
+      meetingUrl: meetingUrl,
+      message: "Meeting created successfully"
+    });
+
+  } catch (error) {
+    console.error("Error creating meeting:", error);
+    res.status(500).json({ error: "Failed to create meeting" });
+  }
+});
+
+// Helper function to generate VideoSDK token
+async function generateVideoSDKToken(meetingId, username) {
+  // This is a simplified token generation
+  // You'll need to implement proper JWT token generation based on VideoSDK documentation
+  // Typically this involves signing with your VideoSDK secret key
+  
+  const payload = {
+    apikey: process.env.VIDEOSDK_API_KEY,
+    permissions: [`allow_join:${meetingId}`, `allow_mod:${meetingId}`],
+    version: 2,
+    roles: ['CRAWLER']
+  };
+
+  // In a real implementation, you would sign this payload with your VideoSDK secret
+  // For now, returning a simple token (replace with actual JWT implementation)
+  return Buffer.from(JSON.stringify(payload)).toString('base64');
+}
+
+/* ======================== *
  *    CLOUDINARY ROUTES    *
  * ======================== */
-// Add this with your other routes
 app.post('/api/upload', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
@@ -198,8 +260,8 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     res.status(500).json({ error: 'Upload failed' });
   }
 });
+
 // Upload profile image
-// Modify /upload-profile to just handle metadata
 app.post("/upload-profile", async (req, res) => {
   try {
     const { username, imageUrl } = req.body;
@@ -302,7 +364,6 @@ app.post("/save-token", async (req, res) => {
   }
 });
 
-
 // Send Notification (example API)
 app.post("/send-notification", async (req, res) => {
   try {
@@ -313,6 +374,7 @@ app.post("/send-notification", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 // Get all profile images
 app.get("/profile-images", async (req, res) => {
   try {
@@ -436,36 +498,56 @@ io.on("connection", async (socket) => {
   });
 
   /* ---- 2.1. File message handler ---- */
+  socket.on("file_message", async (fileData) => {
+    const { to, fileUrl, fileName, fileSize, fileType, format, time, lang } = fileData;
 
-socket.on("file_message", async (fileData) => {
-  const { to, fileUrl, fileName, fileSize, fileType, format, time, lang } = fileData;
+    if (!fileUrl || !to) return;
 
-  if (!fileUrl || !to) return;
+    const payload = {
+      from: username,
+      to,
+      text: "", // Add empty text field
+      type: "file",
+      fileUrl,
+      fileName,
+      fileSize,
+      fileType,
+      format,
+      time,
+      lang: lang || "en",
+      delivered: false,
+      createdAt: new Date()
+    };
 
-  const payload = {
-    from: username,
-    to,
-    text: "", // Add empty text field
-    type: "file",
-    fileUrl,
-    fileName,
-    fileSize,
-    fileType,
-    format,
-    time,
-    lang: lang || "en",
-    delivered: false,
-    createdAt: new Date()
-  };
+    try {
+      const saved = await MessageModel.create(payload);
+      console.log("File message saved:", saved);
 
-  try {
-    const saved = await MessageModel.create(payload);
-    console.log("File message saved:", saved);
+      const targetId = users[to];
 
-    const targetId = users[to];
+      if (targetId) {
+        io.to(targetId).emit("file_message", {
+          from: username,
+          to,
+          text: "",
+          type: "file",
+          fileUrl,
+          fileName,
+          fileSize,
+          fileType,
+          format,
+          time,
+          lang: lang || "en",
+          self: false
+        });
 
-    if (targetId) {
-      io.to(targetId).emit("file_message", {
+        await MessageModel.findByIdAndUpdate(saved._id, { delivered: true });
+        console.log(`File message delivered to online user ${to}`);
+      } else {
+        console.log(`User ${to} is offline, file message saved for later delivery`);
+      }
+
+      socket.emit("file_message", {
         from: username,
         to,
         text: "",
@@ -477,35 +559,14 @@ socket.on("file_message", async (fileData) => {
         format,
         time,
         lang: lang || "en",
-        self: false
+        self: true
       });
 
-      await MessageModel.findByIdAndUpdate(saved._id, { delivered: true });
-      console.log(`File message delivered to online user ${to}`);
-    } else {
-      console.log(`User ${to} is offline, file message saved for later delivery`);
+    } catch (error) {
+      console.error("Error handling file message:", error);
+      socket.emit("message_error", { error: "Failed to send file" });
     }
-
-    socket.emit("file_message", {
-      from: username,
-      to,
-      text: "",
-      type: "file",
-      fileUrl,
-      fileName,
-      fileSize,
-      fileType,
-      format,
-      time,
-      lang: lang || "en",
-      self: true
-    });
-
-  } catch (error) {
-    console.error("Error handling file message:", error);
-    socket.emit("message_error", { error: "Failed to send file" });
-  }
-});
+  });
 
   /* ---- 3. Typing indicators ---- */
   socket.on("typing", ({ to }) => {
@@ -579,21 +640,22 @@ socket.on("file_message", async (fileData) => {
   });
 
   /* ========================================== *
-   *        WEBRTC CALLING FEATURE             *
+   *        VIDEO SDK CALLING FEATURE          *
    * ========================================== */
   
-  // Handle incoming call offer
-  socket.on('webrtc_offer', ({ to, offer, type }) => {
-    console.log(`Call offer from ${username} to ${to} (type: ${type})`);
+  // Handle call invitation
+  socket.on('videosdk_call_invite', ({ to, meetingId, meetingUrl, type }) => {
+    console.log(`Call invite from ${username} to ${to} (type: ${type})`);
     
     const targetSocketId = users[to];
     if (targetSocketId) {
-      io.to(targetSocketId).emit('webrtc_offer', {
+      io.to(targetSocketId).emit('videosdk_call_invite', {
         from: username,
-        offer,
+        meetingId,
+        meetingUrl,
         type
       });
-      console.log(`Call offer forwarded to ${to}`);
+      console.log(`Call invite forwarded to ${to}`);
     } else {
       // Target user is offline
       socket.emit('call_error', { 
@@ -604,65 +666,41 @@ socket.on("file_message", async (fileData) => {
     }
   });
 
-  // Handle call answer
-  socket.on('webrtc_answer', ({ to, answer }) => {
-    console.log(`Call answer from ${username} to ${to}`);
-    
-    const targetSocketId = users[to];
-    if (targetSocketId) {
-      io.to(targetSocketId).emit('webrtc_answer', {
-        from: username,
-        answer
-      });
-      console.log(`Call answer forwarded to ${to}`);
-    }
-  });
-
-  // Handle ICE candidates
-  socket.on('webrtc_ice_candidate', ({ to, candidate }) => {
-    console.log(`ICE candidate from ${username} to ${to}`);
-    
-    const targetSocketId = users[to];
-    if (targetSocketId) {
-      io.to(targetSocketId).emit('webrtc_ice_candidate', {
-        from: username,
-        candidate
-      });
-    }
-  });
-
   // Handle call rejection
-  socket.on('webrtc_reject_call', ({ to }) => {
+  socket.on('videosdk_call_reject', ({ to, meetingId }) => {
     console.log(`Call rejected by ${username}, notifying ${to}`);
     
     const targetSocketId = users[to];
     if (targetSocketId) {
-      io.to(targetSocketId).emit('webrtc_reject_call', {
-        from: username
+      io.to(targetSocketId).emit('videosdk_call_reject', {
+        from: username,
+        meetingId
       });
     }
   });
 
   // Handle call end
-  socket.on('webrtc_end_call', ({ to }) => {
+  socket.on('videosdk_call_end', ({ to, meetingId }) => {
     console.log(`Call ended by ${username}, notifying ${to}`);
     
     const targetSocketId = users[to];
     if (targetSocketId) {
-      io.to(targetSocketId).emit('webrtc_end_call', {
-        from: username
+      io.to(targetSocketId).emit('videosdk_call_end', {
+        from: username,
+        meetingId
       });
     }
   });
 
   // Handle call busy (when user is already in a call)
-  socket.on('webrtc_call_busy', ({ to }) => {
+  socket.on('videosdk_call_busy', ({ to, meetingId }) => {
     console.log(`${username} is busy, notifying ${to}`);
     
     const targetSocketId = users[to];
     if (targetSocketId) {
-      io.to(targetSocketId).emit('webrtc_call_busy', {
-        from: username
+      io.to(targetSocketId).emit('videosdk_call_busy', {
+        from: username,
+        meetingId
       });
     }
   });
@@ -670,19 +708,6 @@ socket.on("file_message", async (fileData) => {
   /* ---- 7. Disconnect cleanup ---- */
   socket.on("disconnect", () => {
     console.log(`${username} disconnected`);
-    
-    // Notify other users if this user was in a call
-    Object.keys(users).forEach(otherUsername => {
-      if (otherUsername !== username) {
-        const otherSocketId = users[otherUsername];
-        if (otherSocketId) {
-          io.to(otherSocketId).emit('user_disconnected', {
-            username: username
-          });
-        }
-      }
-    });
-    
     delete users[username];
   });
 });
