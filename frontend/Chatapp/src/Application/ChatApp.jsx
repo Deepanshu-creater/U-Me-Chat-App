@@ -463,53 +463,54 @@ export default function ChatApp() {
   };
 
   /* ====================== VideoSDK Integration ====================== */
-  const createMeeting = async (isVideo = true) => {
-    if (!active) {
-      toast.error('Please select a user to call');
-      return;
-    }
+const createMeeting = async (isVideo = true) => {
+  if (!active) {
+    toast.error('Please select a user to call');
+    return;
+  }
 
-    if (isInCall) {
-      toast.error('You are already in a call');
-      return;
-    }
+  if (isInCall) {
+    toast.error('You are already in a call');
+    return;
+  }
 
-    try {
-      setCallStatus('Creating meeting...');
-      setIsVideoCall(isVideo);
+  try {
+    setCallStatus('Creating meeting...');
+    setIsVideoCall(isVideo);
 
-      const response = await axios.post(`${SOCKET_URL}/create-meeting`, {
-        username: currentUser,
-        targetUser: active,
-        isVideo: isVideo
-      });
+    const response = await axios.post(`${SOCKET_URL}/create-meeting`, {
+      username: currentUser,
+      targetUser: active,
+      isVideo: isVideo
+    });
 
-      const { meetingId, token, meetingUrl } = response.data;
-      
-      setMeetingId(meetingId);
-      setMeetingUrl(meetingUrl);
-      setIsInCall(true);
-      setCallStatus('Meeting created');
+    const { meetingId, token, meetingUrl } = response.data;
+    
+    setMeetingId(meetingId);
+    setMeetingUrl(meetingUrl);
+    setIsInCall(true);
+    setCallStatus('Meeting created');
 
-      // Notify the other user about the call
-      socket.current.emit('videosdk_call_invite', {
-        to: active,
-        meetingId: meetingId,
-        meetingUrl: meetingUrl,
-        type: isVideo ? 'video' : 'audio',
-        from: currentUser
-      });
+    // Notify the other user about the call
+    socket.current.emit('videosdk_call_invite', {
+      to: active,
+      meetingId: meetingId,
+      meetingUrl: meetingUrl,
+      type: isVideo ? 'video' : 'audio',
+      from: currentUser
+    });
 
-      // Open the meeting in a new tab
-      window.open(meetingUrl, '_blank', 'width=1200,height=800');
+    // Open the meeting in a new tab
+    window.open(meetingUrl, '_blank', 'width=1200,height=800');
 
-    } catch (error) {
-      console.error('Error creating meeting:', error);
-      setCallStatus('Failed to create meeting');
-      toast.error('Failed to start call');
-      cleanupCall();
-    }
-  };
+  } catch (error) {
+    console.error('Error creating meeting:', error);
+    setCallStatus('Failed to create meeting');
+    const errorMsg = error.response?.data?.error || 'Failed to start call (check server logs)';
+    toast.error(errorMsg);
+    cleanupCall();
+  }
+};
 
   const joinMeeting = (meetingUrl) => {
     window.open(meetingUrl, '_blank', 'width=1200,height=800');

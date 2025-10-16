@@ -7,6 +7,7 @@ const multer = require("multer");
 const {sendNotification} = require("./firebaseAdmin");
 const { v2: cloudinary } = require("cloudinary");
 const axios = require("axios");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 /* ======================== *
@@ -54,6 +55,33 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024, // 10MB limit
   }
 });
+
+//*Calling*//
+// VideoSDK-specific token generator
+async function generateVideoSDKToken(roomId, username) {
+  if (!process.env.VIDEOSDK_SECRET) {
+    throw new Error('VIDEOSDK_SECRET is not configured');
+  }
+
+  const payload = {
+    apikey: process.env.VIDEOSDK_API_KEY,
+    permissions: [
+      `allow_join:${roomId}`,
+      `allow_mod:${roomId}`
+    ],
+    version: 2,
+    roles: ['ADMIN'],  // Or ['VIEWER'] for guests
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7)  // 7 days
+  };
+
+  const token = jwt.sign(payload, process.env.VIDEOSDK_SECRET, { 
+    algorithm: 'HS256' 
+  });
+
+  console.log(`Generated VideoSDK token for room ${roomId} and user ${username}`);
+  return token;
+}
 
 /* ======================== *
  *      AUTH ROUTES        *
@@ -152,31 +180,29 @@ app.post("/create-meeting", async (req, res) => {
       return res.status(400).json({ error: "Username and target user are required" });
     }
 
-    // Generate a unique meeting ID
-    const meetingId = `meeting_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    // Create meeting using VideoSDK API
+    // Create room via VideoSDK API
     const videoSdkResponse = await axios.post(
       'https://api.videosdk.live/v2/rooms',
-      {},
+      {},  // Empty body for basic room creation
       {
         headers: {
-          'Authorization': process.env.VIDEOSDK_API_KEY, // Your VideoSDK API key
+          'Authorization': `Bearer ${process.env.VIDEOSDK_API_KEY}`,
           'Content-Type': 'application/json'
         }
       }
     );
 
     const roomData = videoSdkResponse.data;
-    
-    // Generate token for the meeting (you might need to implement token generation based on VideoSDK requirements)
-    const token = await generateVideoSDKToken(meetingId, username);
-    
+    const roomId = roomData.roomId;
+
+    // Generate token using the helper
+    const token = await generateVideoSDKToken(roomId, username);
+
     // Construct meeting URL
-    const meetingUrl = `${process.env.VIDEOSDK_APP_URL || 'https://app.videosdk.live'}/meeting/${roomData.roomId}?token=${token}&name=${username}`;
+    const meetingUrl = `https://app.videosdk.live/meeting/${roomId}?token=${token}&name=${encodeURIComponent(username)}`;
 
     res.json({
-      meetingId: roomData.roomId,
+      meetingId: roomId,
       token: token,
       meetingUrl: meetingUrl,
       message: "Meeting created successfully"
