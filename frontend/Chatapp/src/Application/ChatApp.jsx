@@ -41,20 +41,13 @@ export default function ChatApp() {
   const [speechSupported, setSpeechSupported] = useState(false);
   const recognitionRef = useRef(null);
 
-  // WebRTC States
+  // VideoSDK States
   const [isInCall, setIsInCall] = useState(false);
   const [isVideoCall, setIsVideoCall] = useState(false);
   const [incomingCall, setIncomingCall] = useState(null);
   const [callStatus, setCallStatus] = useState('');
-  const [isMuted, setIsMuted] = useState(false);
-  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
-  
-  // WebRTC Refs
-  const peerConnection = useRef(null);
-  const localStream = useRef(null);
-  const remoteStream = useRef(null);
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
+  const [meetingId, setMeetingId] = useState(null);
+  const [meetingUrl, setMeetingUrl] = useState(null);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -469,75 +462,8 @@ export default function ChatApp() {
     }
   };
 
-  /* ====================== WebRTC Configuration ====================== */
-  const pcConfig = {
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun2.l.google.com:19302' },
-      { urls: 'stun:stun3.l.google.com:19302' },
-      { urls: 'stun:stun4.l.google.com:19302' }
-    ]
-  };
-
-  /* ====================== WebRTC Functions ====================== */
-  const createPeerConnection = () => {
-    try {
-      peerConnection.current = new RTCPeerConnection(pcConfig);
-      
-      // Add local tracks to connection
-      if (localStream.current) {
-        localStream.current.getTracks().forEach(track => {
-          peerConnection.current.addTrack(track, localStream.current);
-        });
-      }
-
-      // Handle ICE candidates
-      peerConnection.current.onicecandidate = (event) => {
-        if (event.candidate && active) {
-          socket.current.emit('webrtc_ice_candidate', {
-            to: active,
-            candidate: event.candidate
-          });
-        }
-      };
-
-      // Handle remote stream
-      peerConnection.current.ontrack = (event) => {
-        console.log('Remote track received:', event.streams[0]);
-        remoteStream.current = event.streams[0];
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = event.streams[0];
-        }
-      };
-
-      // Handle connection state changes
-      peerConnection.current.onconnectionstatechange = () => {
-        const state = peerConnection.current.connectionState;
-        console.log('Peer connection state:', state);
-        
-        switch (state) {
-          case 'connected':
-            setCallStatus('Connected');
-            break;
-          case 'disconnected':
-          case 'failed':
-            setCallStatus('Call ended');
-            setTimeout(cleanupCall, 2000);
-            break;
-          case 'closed':
-            cleanupCall();
-            break;
-        }
-      };
-
-    } catch (error) {
-      console.error('Error creating peer connection:', error);
-      throw error;
-    }
-  };
-
-  const startCall = async (isVideo = false) => {
+  /* ====================== VideoSDK Integration ====================== */
+  const createMeeting = async (isVideo = true) => {
     if (!active) {
       toast.error('Please select a user to call');
       return;
@@ -549,122 +475,53 @@ export default function ChatApp() {
     }
 
     try {
-      setCallStatus('Starting call...');
+      setCallStatus('Creating meeting...');
       setIsVideoCall(isVideo);
-      
-      // Get user media
-      const constraints = {
-        audio: true,
-        video: isVideo ? {
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        } : false
-      };
 
-      localStream.current = await navigator.mediaDevices.getUserMedia(constraints);
-      
-      // Set up local video
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = localStream.current;
-      }
-
-      // Create peer connection
-      createPeerConnection();
-
-      // Create and send offer
-      const offer = await peerConnection.current.createOffer();
-      await peerConnection.current.setLocalDescription(offer);
-
-      socket.current.emit('webrtc_offer', {
-        to: active,
-        offer: offer,
-        type: isVideo ? 'video' : 'audio'
+      const response = await axios.post(`${SOCKET_URL}/create-meeting`, {
+        username: currentUser,
+        targetUser: active,
+        isVideo: isVideo
       });
 
+      const { meetingId, token, meetingUrl } = response.data;
+      
+      setMeetingId(meetingId);
+      setMeetingUrl(meetingUrl);
       setIsInCall(true);
-      setCallStatus('Calling...');
+      setCallStatus('Meeting created');
+
+      // Notify the other user about the call
+      socket.current.emit('videosdk_call_invite', {
+        to: active,
+        meetingId: meetingId,
+        meetingUrl: meetingUrl,
+        type: isVideo ? 'video' : 'audio',
+        from: currentUser
+      });
+
+      // Open the meeting in a new tab
+      window.open(meetingUrl, '_blank', 'width=1200,height=800');
 
     } catch (error) {
-      console.error('Error starting call:', error);
-      let errorMsg = 'Failed to start call';
-      
-      if (error.name === 'NotAllowedError') {
-        errorMsg = 'Microphone/camera access denied';
-      } else if (error.name === 'NotFoundError') {
-        errorMsg = 'No microphone/camera found';
-      } else if (error.name === 'NotReadableError') {
-        errorMsg = 'Microphone/camera is in use by another application';
-      }
-      
-      setCallStatus(errorMsg);
-      toast.error(errorMsg);
+      console.error('Error creating meeting:', error);
+      setCallStatus('Failed to create meeting');
+      toast.error('Failed to start call');
       cleanupCall();
     }
   };
 
-  const answerCall = async () => {
-    if (!incomingCall) return;
-
-    try {
-      setCallStatus('Connecting...');
-      
-      // Get user media
-      const constraints = {
-        audio: true,
-        video: incomingCall.type === 'video' ? {
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        } : false
-      };
-
-      localStream.current = await navigator.mediaDevices.getUserMedia(constraints);
-      
-      // Set up local video
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = localStream.current;
-      }
-
-      // Create peer connection
-      createPeerConnection();
-
-      // Set remote description
-      await peerConnection.current.setRemoteDescription(incomingCall.offer);
-      
-      // Create and send answer
-      const answer = await peerConnection.current.createAnswer();
-      await peerConnection.current.setLocalDescription(answer);
-
-      socket.current.emit('webrtc_answer', {
-        to: incomingCall.from,
-        answer: answer
-      });
-
-      setIsInCall(true);
-      setIsVideoCall(incomingCall.type === 'video');
-      setActive(incomingCall.from);
-      setIncomingCall(null);
-      setCallStatus('Call connected');
-
-    } catch (error) {
-      console.error('Error answering call:', error);
-      let errorMsg = 'Failed to answer call';
-      
-      if (error.name === 'NotAllowedError') {
-        errorMsg = 'Microphone/camera access denied';
-      } else if (error.name === 'NotFoundError') {
-        errorMsg = 'No microphone/camera found';
-      }
-      
-      setCallStatus(errorMsg);
-      toast.error(errorMsg);
-      rejectCall();
-    }
+  const joinMeeting = (meetingUrl) => {
+    window.open(meetingUrl, '_blank', 'width=1200,height=800');
+    setIncomingCall(null);
+    setIsInCall(true);
   };
 
   const rejectCall = () => {
     if (incomingCall) {
-      socket.current.emit('webrtc_reject_call', {
-        to: incomingCall.from
+      socket.current.emit('videosdk_call_reject', {
+        to: incomingCall.from,
+        meetingId: incomingCall.meetingId
       });
     }
     setIncomingCall(null);
@@ -672,74 +529,22 @@ export default function ChatApp() {
   };
 
   const endCall = () => {
-    if (active) {
-      socket.current.emit('webrtc_end_call', {
-        to: active
+    if (active && meetingId) {
+      socket.current.emit('videosdk_call_end', {
+        to: active,
+        meetingId: meetingId
       });
     }
-    
     cleanupCall();
   };
 
   const cleanupCall = () => {
-    console.log('Cleaning up call...');
-    
-    // Stop media tracks
-    if (localStream.current) {
-      localStream.current.getTracks().forEach(track => {
-        track.stop();
-      });
-      localStream.current = null;
-    }
-    
-    if (remoteStream.current) {
-      remoteStream.current.getTracks().forEach(track => {
-        track.stop();
-      });
-      remoteStream.current = null;
-    }
-
-    // Close peer connection
-    if (peerConnection.current) {
-      peerConnection.current.close();
-      peerConnection.current = null;
-    }
-
-    // Reset video elements
-    if (localVideoRef.current) {
-      localVideoRef.current.srcObject = null;
-    }
-    if (remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject = null;
-    }
-
-    // Reset states
     setIsInCall(false);
     setIsVideoCall(false);
     setIncomingCall(null);
     setCallStatus('');
-    setIsMuted(false);
-    setIsVideoEnabled(true);
-  };
-
-  const toggleMute = () => {
-    if (localStream.current) {
-      const audioTrack = localStream.current.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled;
-        setIsMuted(!audioTrack.enabled);
-      }
-    }
-  };
-
-  const toggleVideo = () => {
-    if (localStream.current) {
-      const videoTrack = localStream.current.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled;
-        setIsVideoEnabled(videoTrack.enabled);
-      }
-    }
+    setMeetingId(null);
+    setMeetingUrl(null);
   };
 
   /* ====================== Socket Setup ====================== */
@@ -844,77 +649,52 @@ export default function ChatApp() {
         setTyping((prev) => ({ ...prev, [from]: false }))
       );
 
-      // WebRTC Socket Events - FIXED VERSION
-      socket.current.on('webrtc_offer', async ({ from, offer, type }) => {
-        console.log(`Call offer from ${from} to ${currentUser} (type: ${type})`);
+      // VideoSDK Socket Events
+      socket.current.on('videosdk_call_invite', ({ from, meetingId, meetingUrl, type }) => {
+        console.log(`Call invite from ${from} (type: ${type})`);
         
         // Check if user is already in a call
         if (isInCall) {
-          socket.current.emit('webrtc_call_busy', { to: from });
+          socket.current.emit('videosdk_call_busy', { 
+            to: from,
+            meetingId: meetingId
+          });
           return;
         }
 
         setIncomingCall({
           from,
-          offer,
+          meetingId,
+          meetingUrl,
           type
         });
       });
 
-      socket.current.on('webrtc_answer', async ({ from, answer }) => {
-        console.log(`Call answer received from ${from}`);
-        
-        if (peerConnection.current) {
-          try {
-            await peerConnection.current.setRemoteDescription(answer);
-            setCallStatus('Call connected');
-          } catch (error) {
-            console.error('Error setting remote description:', error);
-            setCallStatus('Call failed');
-            cleanupCall();
-          }
-        }
-      });
-
-      socket.current.on('webrtc_ice_candidate', async ({ from, candidate }) => {
-        console.log(`ICE candidate received from ${from}`);
-        
-        if (peerConnection.current && candidate) {
-          try {
-            await peerConnection.current.addIceCandidate(candidate);
-          } catch (error) {
-            console.error('Error adding ICE candidate:', error);
-          }
-        }
-      });
-
-      socket.current.on('webrtc_reject_call', ({ from }) => {
+      socket.current.on('videosdk_call_reject', ({ from, meetingId }) => {
         console.log(`Call rejected by ${from}`);
         setCallStatus('Call rejected');
+        toast.info(`${from} rejected your call`);
         setTimeout(() => {
           cleanupCall();
         }, 2000);
       });
 
-      socket.current.on('webrtc_end_call', ({ from }) => {
+      socket.current.on('videosdk_call_end', ({ from, meetingId }) => {
         console.log(`Call ended by ${from}`);
-        cleanupCall();
+        setCallStatus('Call ended');
+        toast.info(`${from} ended the call`);
+        setTimeout(() => {
+          cleanupCall();
+        }, 2000);
       });
 
-      socket.current.on('webrtc_call_busy', ({ from }) => {
+      socket.current.on('videosdk_call_busy', ({ from, meetingId }) => {
         console.log(`${from} is busy`);
         setCallStatus('User is busy');
+        toast.info(`${from} is busy in another call`);
         setTimeout(() => {
           cleanupCall();
         }, 2000);
-      });
-
-      socket.current.on('user_disconnected', ({ username: disconnectedUser }) => {
-        if (active === disconnectedUser && isInCall) {
-          console.log(`User ${disconnectedUser} disconnected during call`);
-          setCallStatus('User disconnected');
-          setTimeout(cleanupCall, 2000);
-        }
       });
 
       const storedActive = localStorage.getItem("activeUser");
@@ -1161,17 +941,17 @@ export default function ChatApp() {
         )}
       </AnimatePresence>
 
-      {/* WebRTC Call Overlay */}
+      {/* VideoSDK Call Overlay */}
       <AnimatePresence>
         {(isInCall || incomingCall) && (
           <motion.div 
-            className="webrtc-call-overlay"
+            className="videosdk-call-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div 
-              className="webrtc-call-container"
+              className="videosdk-call-container"
               variants={callOverlayVariants}
               initial="hidden"
               animate="visible"
@@ -1180,24 +960,25 @@ export default function ChatApp() {
               {/* Incoming Call */}
               {incomingCall && !isInCall && (
                 <motion.div 
-                  className="webrtc-incoming-call"
+                  className="videosdk-incoming-call"
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
                   <h3>Incoming {incomingCall.type} call from {incomingCall.from}</h3>
-                  <div className="webrtc-call-actions">
+                  <p className="videosdk-call-status">Click Join to enter the meeting</p>
+                  <div className="videosdk-call-actions">
                     <motion.button 
-                      className="webrtc-answer-btn"
-                      onClick={answerCall}
+                      className="videosdk-answer-btn"
+                      onClick={() => joinMeeting(incomingCall.meetingUrl)}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <Phone size={20} />
-                      Answer
+                      <Video size={20} />
+                      Join Meeting
                     </motion.button>
                     <motion.button 
-                      className="webrtc-reject-btn"
+                      className="videosdk-reject-btn"
                       onClick={rejectCall}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -1212,88 +993,36 @@ export default function ChatApp() {
               {/* Active Call */}
               {isInCall && (
                 <motion.div 
-                  className="webrtc-active-call"
+                  className="videosdk-active-call"
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                 >
-                  <div className="webrtc-call-header">
+                  <div className="videosdk-call-header">
                     <h3>{isVideoCall ? 'Video' : 'Audio'} call with {active}</h3>
-                    <p className="webrtc-call-status">{callStatus}</p>
+                    <p className="videosdk-call-status">{callStatus}</p>
+                    <p className="videosdk-meeting-id">Meeting ID: {meetingId}</p>
                   </div>
 
-                  {isVideoCall && (
-                    <div className="webrtc-video-container">
-                      <motion.video 
-                        ref={remoteVideoRef}
-                        className="webrtc-remote-video"
-                        autoPlay
-                        playsInline
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                      />
-                      <motion.video 
-                        ref={localVideoRef}
-                        className="webrtc-local-video"
-                        autoPlay
-                        playsInline
-                        muted
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.3 }}
-                      />
-                    </div>
-                  )}
-
-                  {!isVideoCall && (
-                    <div className="webrtc-audio-call">
-                      <motion.div 
-                        className="webrtc-audio-avatar"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring" }}
-                      >
-                        {profileImages[active] ? (
-                          <img src={profileImages[active]} alt={active} />
-                        ) : (
-                          <div className="webrtc-avatar-fallback">
-                            {active?.charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                      </motion.div>
-                      <audio ref={remoteVideoRef} autoPlay />
-                      <audio ref={localVideoRef} autoPlay muted />
-                    </div>
-                  )}
-
-                  <div className="webrtc-call-controls">
-                    <motion.button 
-                      className={`webrtc-control-btn ${isMuted ? 'muted' : ''}`}
-                      onClick={toggleMute}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
-                    </motion.button>
-                    
-                    {isVideoCall && (
+                  <div className="videosdk-call-info">
+                    <p>Meeting is active in a separate window</p>
+                    <div className="videosdk-call-actions">
                       <motion.button 
-                        className={`webrtc-control-btn ${!isVideoEnabled ? 'disabled' : ''}`}
-                        onClick={toggleVideo}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
+                        className="videosdk-action-btn"
+                        onClick={() => window.open(meetingUrl, '_blank')}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                       >
-                        {isVideoEnabled ? <Video size={20} /> : <VideoOff size={20} />}
+                        Reopen Meeting
                       </motion.button>
-                    )}
-                    
-                    <motion.button 
-                      className="webrtc-control-btn end-call"
-                      onClick={endCall}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      <PhoneOff size={20} />
-                    </motion.button>
+                      <motion.button 
+                        className="videosdk-action-btn videosdk-end-call"
+                        onClick={endCall}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        End Call
+                      </motion.button>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -1464,7 +1193,7 @@ export default function ChatApp() {
                               e.stopPropagation();
                               if (!isInCall) {
                                 setActive(username);
-                                startCall(false);
+                                createMeeting(false);
                               }
                             }}
                             disabled={isInCall}
@@ -1479,7 +1208,7 @@ export default function ChatApp() {
                               e.stopPropagation();
                               if (!isInCall) {
                                 setActive(username);
-                                startCall(true);
+                                createMeeting(true);
                               }
                             }}
                             disabled={isInCall}
@@ -1546,7 +1275,7 @@ export default function ChatApp() {
                               e.stopPropagation();
                               if (!isInCall) {
                                 setActive(username);
-                                startCall(false);
+                                createMeeting(false);
                               }
                             }}
                             disabled={isInCall}
@@ -1561,7 +1290,7 @@ export default function ChatApp() {
                               e.stopPropagation();
                               if (!isInCall) {
                                 setActive(username);
-                                startCall(true);
+                                createMeeting(true);
                               }
                             }}
                             disabled={isInCall}
@@ -1755,7 +1484,7 @@ export default function ChatApp() {
                 <>
                   <motion.button 
                     className="chat-app-icon-button"
-                    onClick={() => startCall(false)}
+                    onClick={() => createMeeting(false)}
                     disabled={isInCall}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
@@ -1765,7 +1494,7 @@ export default function ChatApp() {
 
                   <motion.button 
                     className="chat-app-icon-button"
-                    onClick={() => startCall(true)}
+                    onClick={() => createMeeting(true)}
                     disabled={isInCall}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
