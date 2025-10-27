@@ -31,6 +31,17 @@ export default function ChatApp() {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+// Add this useEffect for mobile detection
+useEffect(() => {
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth <= 768);
+  };
+  
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+  return () => window.removeEventListener('resize', checkMobile);
+}, []);
+  
   // Upload states
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
@@ -41,108 +52,128 @@ export default function ChatApp() {
   const [speechSupported, setSpeechSupported] = useState(false);
   const recognitionRef = useRef(null);
 
-  // VideoSDK States
+  // WebRTC States
   const [isInCall, setIsInCall] = useState(false);
   const [isVideoCall, setIsVideoCall] = useState(false);
   const [incomingCall, setIncomingCall] = useState(null);
   const [callStatus, setCallStatus] = useState('');
-  const [meetingId, setMeetingId] = useState(null);
-  const [meetingUrl, setMeetingUrl] = useState(null);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+  
+  // WebRTC Refs
+  const peerConnection = useRef(null);
+  const localStream = useRef(null);
+  const remoteStream = useRef(null);
+  const localVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
 
   const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
-  };
-
-  const bubbleVariants = {
-    sent: {
-      opacity: 0,
-      x: 100,
-      transition: { duration: 0 }
-    },
-    animate: {
-      opacity: 1,
-      x: 0,
-      transition: { type: "spring", stiffness: 500, damping: 30 }
-    }
-  };
-
-  const profileMenuVariants = {
-    hidden: { opacity: 0, y: -10 },
-    visible: { opacity: 1, y: 0 }
-  };
-
-  const callOverlayVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: { opacity: 1, scale: 1 }
-  };
-
-  const pulseRing = {
-    scale: [1, 1.2, 1],
-    opacity: [0.5, 0],
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
     transition: {
-      duration: 1.5,
-      repeat: Infinity,
-      ease: "easeInOut"
+      staggerChildren: 0.1
     }
-  };
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 }
+};
+
+const bubbleVariants = {
+  sent: {
+    opacity: 0,
+    x: 100,
+    transition: { duration: 0 }
+  },
+  animate: {
+    opacity: 1,
+    x: 0,
+    transition: { type: "spring", stiffness: 500, damping: 30 }
+  }
+};
+
+const profileMenuVariants = {
+  hidden: { opacity: 0, y: -10 },
+  visible: { opacity: 1, y: 0 }
+};
+
+const callOverlayVariants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1 }
+};
+
+const pulseRing = {
+  scale: [1, 1.2, 1],
+  opacity: [0.5, 0],
+  transition: {
+    duration: 1.5,
+    repeat: Infinity,
+    ease: "easeInOut"
+  }
+};
+
+const toggleMobileSidebar = () => {
+  setIsMobileSidebarOpen(!isMobileSidebarOpen);
+};
+
+// Close mobile sidebar
+const closeMobileSidebar = () => {
+  setIsMobileSidebarOpen(false);
+};
 
   /* ====================== Theme toggling ====================== */
   const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem('chatTheme', newTheme);
-  };
-
+  const newTheme = theme === 'dark' ? 'light' : 'dark';
+  setTheme(newTheme);
+  localStorage.setItem('chatTheme', newTheme);
+};
   /* ====================== Cloudinary Upload Functions ====================== */
-  const uploadFileToBackend = async (file, isProfileImage = false) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('isProfileImage', isProfileImage.toString());
-    formData.append('username', currentUser);
-    formData.append('targetUser', active || '');
+  
+  // Upload file to Cloudinary
+  // Replace the entire uploadToCloudinary function with:
+const uploadFileToBackend = async (file, isProfileImage = false) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('isProfileImage', isProfileImage.toString());
+  formData.append('username', currentUser);
+  formData.append('targetUser', active || '');
 
-    try {
-      const response = await axios.post(
-        `${SOCKET_URL}/api/upload`,
-        formData,
-        {
-          onUploadProgress: (progressEvent) => {
-            const progress = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setUploadProgress(progress);
-          }
+  try {
+    const response = await axios.post(
+      `${SOCKET_URL}/api/upload`,
+      formData,
+      {
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadProgress(progress);
         }
-      );
-      
-      return response.data;
-    } catch (error) {
-      console.error('Upload error:', error);
-      throw new Error('Upload failed');
-    }
-  };
-
+      }
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error('Upload error:', error);
+    throw new Error('Upload failed');
+  }
+};
   // Handle profile image upload
   const handleProfileImageUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
+    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
+
       return;
     }
 
+    // Validate file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Image size should be less than 5MB');
       return;
@@ -154,17 +185,20 @@ export default function ChatApp() {
     try {
       const result = await uploadFileToBackend(file, true);
       
+      // Update profile image in state
       setProfileImages(prev => ({
         ...prev,
         [currentUser]: result.url
       }));
 
+      // Save to backend
       await axios.post(`${SOCKET_URL}/upload-profile`, {
         username: currentUser,
         imageUrl: result.url,
         publicId: result.publicId
       });
 
+      // Notify other users about profile update
       socket.current.emit('profile_updated', {
         username: currentUser,
         imageUrl: result.url
@@ -182,60 +216,68 @@ export default function ChatApp() {
   };
 
   // Handle file attachment upload
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file || !active) return;
+  // Handle file attachment upload
+const handleFileUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file || !active) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('File size should be less than 10MB');
-      return;
-    }
+  // Validate file size (10MB limit for general files)
+  if (file.size > 10 * 1024 * 1024) {
+     toast.error('File size should be less than 10MB');
+    return;
+  }
 
-    setIsUploadingFile(true);
+  setIsUploadingFile(true);
+  setUploadProgress(0);
+
+  try {
+    const result = await uploadFileToBackend(file, false);
+    
+    // Create file message - make sure all fields are properly set
+    const fileMessage = {
+      to: active,
+      fileUrl: result.url,
+      fileName: result.originalFilename || file.name,
+      fileSize: result.bytes,
+      fileType: result.resourceType,
+      format: result.format,
+      time: new Date().toISOString(),
+      lang: language,
+      text: "" // Add empty text field to satisfy schema
+    };
+
+    console.log("Sending file message:", fileMessage); // Debug log
+
+    // Send file message through socket
+    socket.current.emit("file_message", fileMessage);
+    
+    toast.success('File uploaded and sent successfully!');
+  } catch (error) {
+    console.error('File upload error:', error);
+    toast.error('Failed to upload file');
+  } finally {
+    setIsUploadingFile(false);
     setUploadProgress(0);
-
-    try {
-      const result = await uploadFileToBackend(file, false);
-      
-      const fileMessage = {
-        to: active,
-        fileUrl: result.url,
-        fileName: result.originalFilename || file.name,
-        fileSize: result.bytes,
-        fileType: result.resourceType,
-        format: result.format,
-        time: new Date().toISOString(),
-        lang: language,
-        text: ""
-      };
-
-      console.log("Sending file message:", fileMessage);
-
-      socket.current.emit("file_message", fileMessage);
-      
-      toast.success('File uploaded and sent successfully!');
-    } catch (error) {
-      console.error('File upload error:', error);
-      toast.error('Failed to upload file');
-    } finally {
-      setIsUploadingFile(false);
-      setUploadProgress(0);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+    // Clear file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
-  };
+  }
+};
 
   // Remove profile image
   const handleRemoveProfileImage = async () => {
     try {
+      // Remove from backend
       await axios.delete(`${SOCKET_URL}/remove-profile/${currentUser}`);
       
+      // Update state
       setProfileImages(prev => ({
         ...prev,
         [currentUser]: null
       }));
 
+      // Notify other users
       socket.current.emit('profile_updated', {
         username: currentUser,
         imageUrl: null
@@ -263,71 +305,80 @@ export default function ChatApp() {
     loadProfileImages();
   }, []);
 
+
   /************Notification-setup****************/
-  useEffect(() => {
-    const setupNotifications = async () => {
-      if (!currentUser) {
-        console.log("No user logged in, skipping notification setup");
+useEffect(() => {
+  const setupNotifications = async () => {
+    if (!currentUser) {
+      console.log("No user logged in, skipping notification setup");
+      return;
+    }
+
+    try {
+      const token = await requestForToken();
+      if (!token) {
+        console.log("No FCM token received");
         return;
       }
 
-      try {
-        const token = await requestForToken();
-        if (!token) {
-          console.log("No FCM token received");
-          return;
+      console.log("FCM Token received:", token);
+      console.log("Attempting to save token for user:", currentUser);
+      
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      const response = await axios.post(`${SOCKET_URL}/save-token`, {
+        token,
+        username: currentUser
+      }, {
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json'
         }
+      });
 
-        console.log("FCM Token received:", token);
-        console.log("Attempting to save token for user:", currentUser);
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-        const response = await axios.post(`${SOCKET_URL}/save-token`, {
-          token,
-          username: currentUser
-        }, {
-          signal: controller.signal,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        clearTimeout(timeoutId);
-        console.log("Token save successful:", response.data);
-        
-      } catch (error) {
-        console.error("Token save ERROR:", error);
-        
-        if (error.code === 'ECONNABORTED') {
-          console.error("Request timeout - server might be down");
-        } else if (error.response) {
-          console.error("Server error response:", error.response.status, error.response.data);
-        } else if (error.request) {
-          console.error("No response from server - check if backend is running");
-          console.error("Request was made to:", error.config.url);
-        } else {
-          console.error("Unexpected error:", error.message);
-        }
+      clearTimeout(timeoutId);
+      console.log("Token save successful:", response.data);
+      
+    } catch (error) {
+      console.error("Token save ERROR:", error);
+      
+      if (error.code === 'ECONNABORTED') {
+        console.error("Request timeout - server might be down");
+      } else if (error.response) {
+        // Server responded with error status
+        console.error("Server error response:", error.response.status, error.response.data);
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error("No response from server - check if backend is running");
+        console.error("Request was made to:", error.config.url);
+      } else {
+        // Something else happened
+        console.error("Unexpected error:", error.message);
       }
-    };
+    }
+  };
 
-    setupNotifications();
-  }, [currentUser, SOCKET_URL]);
+  setupNotifications();
+
+}, [currentUser, SOCKET_URL]); // Add SOCKET_URL as dependency
 
   /* ====================== Voice Input Setup ====================== */
   useEffect(() => {
+    // Check if browser supports speech recognition
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     
     if (SpeechRecognition) {
       setSpeechSupported(true);
       recognitionRef.current = new SpeechRecognition();
       
+      // Configure speech recognition
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = true;
       recognitionRef.current.maxAlternatives = 1;
       
+      // Set language based on user's selected language
       const speechLang = getSpeechLanguageCode(language);
       recognitionRef.current.lang = speechLang;
 
@@ -341,8 +392,10 @@ export default function ChatApp() {
           transcript += event.results[i][0].transcript;
         }
         
+        // Update message with the transcript
         setMessage(transcript);
         
+        // Trigger typing indicator
         if (active && transcript.trim()) {
           handleTyping();
         }
@@ -352,6 +405,7 @@ export default function ChatApp() {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
         
+        // Show user-friendly error messages
         if (event.error === 'not-allowed') {
           alert('Microphone access denied. Please allow microphone access to use voice typing.');
         } else if (event.error === 'no-speech') {
@@ -371,6 +425,7 @@ export default function ChatApp() {
     };
   }, [language, active]);
 
+  // Function to map app language codes to speech recognition language codes
   const getSpeechLanguageCode = (langCode) => {
     const langMap = {
       'en': 'en-US',
@@ -436,6 +491,7 @@ export default function ChatApp() {
     return langMap[langCode] || 'en-US';
   };
 
+  // Toggle voice input
   const toggleVoiceInput = () => {
     if (!speechSupported) {
       toast.error('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
@@ -450,6 +506,7 @@ export default function ChatApp() {
     if (isListening) {
       recognitionRef.current.stop();
     } else {
+      // Update language before starting
       const speechLang = getSpeechLanguageCode(language);
       recognitionRef.current.lang = speechLang;
       
@@ -462,67 +519,152 @@ export default function ChatApp() {
     }
   };
 
-  /* ====================== VideoSDK Integration ====================== */
-const createMeeting = async (isVideo = true) => {
-  if (!active) {
-    toast.error('Please select a user to call');
-    return;
-  }
-
-  if (isInCall) {
-    toast.error('You are already in a call');
-    return;
-  }
-
-  try {
-    setCallStatus('Creating meeting...');
-    setIsVideoCall(isVideo);
-
-    const response = await axios.post(`${SOCKET_URL}/create-meeting`, {
-      username: currentUser,
-      targetUser: active,
-      isVideo: isVideo
-    });
-
-    const { meetingId, token, meetingUrl } = response.data;
-    
-    setMeetingId(meetingId);
-    setMeetingUrl(meetingUrl);
-    setIsInCall(true);
-    setCallStatus('Meeting created');
-
-    // Notify the other user about the call
-    socket.current.emit('videosdk_call_invite', {
-      to: active,
-      meetingId: meetingId,
-      meetingUrl: meetingUrl,
-      type: isVideo ? 'video' : 'audio',
-      from: currentUser
-    });
-
-    // Open the meeting in a new tab
-    window.open(meetingUrl, '_blank', 'width=1200,height=800');
-
-  } catch (error) {
-    console.error('Error creating meeting:', error);
-    setCallStatus('Failed to create meeting');
-    const errorMsg = error.response?.data?.error || 'Failed to start call (check server logs)';
-    toast.error(errorMsg);
-    cleanupCall();
-  }
-};
-
-  const joinMeeting = (meetingUrl) => {
-    window.open(meetingUrl, '_blank', 'width=1200,height=800');
-    setIncomingCall(null);
-    setIsInCall(true);
+  /* ====================== WebRTC Configuration ====================== */
+  const pcConfig = {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun3.l.google.com:19302' },
+      { urls: 'stun:stun4.l.google.com:19302' }
+    ]
   };
 
+  /* ====================== WebRTC Functions ====================== */
+  const createPeerConnection = () => {
+    peerConnection.current = new RTCPeerConnection(pcConfig);
+    
+    peerConnection.current.onicecandidate = (event) => {
+      if (event.candidate && active) {
+        socket.current.emit('webrtc_ice_candidate', {
+          to: active,
+          candidate: event.candidate
+        });
+      }
+    };
+
+    peerConnection.current.ontrack = (event) => {
+      remoteStream.current = event.streams[0];
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = event.streams[0];
+      }
+    };
+
+    peerConnection.current.onconnectionstatechange = () => {
+      const state = peerConnection.current.connectionState;
+      console.log('Peer connection state:', state);
+      switch (state) {
+        case 'connected':
+          setCallStatus('Connected');
+          break;
+        case 'disconnected':
+        case 'failed':
+          setCallStatus(state === 'failed' ? 'Call failed' : 'Call disconnected');
+          setTimeout(cleanupCall, 2000);
+          break;
+        case 'closed':
+          cleanupCall();
+          break;
+        default:
+          // 'connecting' or 'new' can be handled if needed
+          break;
+      }
+    };
+
+    peerConnection.current.oniceconnectionstatechange = () => {
+      console.log('ICE connection state:', peerConnection.current.iceConnectionState);
+    };
+
+    // Add local stream tracks to peer connection
+    if (localStream.current) {
+      localStream.current.getTracks().forEach(track => {
+        peerConnection.current.addTrack(track, localStream.current);
+      });
+    }
+  };
+
+  const startCall = async (isVideo = false) => {
+    try {
+      setCallStatus('Connecting...');
+      setIsVideoCall(isVideo);
+      
+      const constraints = {
+        audio: true,
+        video: isVideo
+      };
+
+      localStream.current = await navigator.mediaDevices.getUserMedia(constraints);
+      
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = localStream.current;
+      }
+
+      createPeerConnection();
+
+      const offer = await peerConnection.current.createOffer();
+      await peerConnection.current.setLocalDescription(offer);
+
+      socket.current.emit('webrtc_offer', {
+        to: active,
+        offer: offer,
+        type: isVideo ? 'video' : 'audio'
+      });
+
+      setIsInCall(true);
+      setCallStatus('Calling...');
+    } catch (error) {
+      console.error('Error starting call:', error);
+      setCallStatus('Failed to start call');
+      toast.error('Failed to start call');
+      setTimeout(() => setCallStatus(''), 3000);
+    }
+  };
+
+const answerCall = async () => {
+  try {
+    setCallStatus('Connecting...');
+    
+    const constraints = {
+      audio: true,
+      video: incomingCall.type === 'video'
+    };
+
+    localStream.current = await navigator.mediaDevices.getUserMedia(constraints);
+    
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject = localStream.current;
+    }
+
+    createPeerConnection();
+
+    await peerConnection.current.setRemoteDescription(incomingCall.offer);
+    
+    const answer = await peerConnection.current.createAnswer();
+    await peerConnection.current.setLocalDescription(answer);
+
+    socket.current.emit('webrtc_answer', {
+      to: incomingCall.from,
+      answer: answer
+    });
+
+    setIsInCall(true);
+    setIsVideoCall(incomingCall.type === 'video');
+    setIncomingCall(null);
+  } catch (error) {
+    console.error('Error answering call:', error);
+    let msg = `Error answering call: ${error.message}`;
+    if (error.name === 'NotReadableError') {
+      msg = 'Camera or microphone is in use by another application. Please close it and retry.';
+    }
+    toast.error(msg);
+    setCallStatus(''); // Explicitly clear status on failure
+    rejectCall();
+  }
+};
   const rejectCall = () => {
     if (incomingCall) {
-      socket.current.emit('videosdk_call_reject', {
-        to: incomingCall.from,
-        meetingId: incomingCall.meetingId
+      socket.current.emit('webrtc_reject_call', {
+        to: incomingCall.from
       });
     }
     setIncomingCall(null);
@@ -530,33 +672,72 @@ const createMeeting = async (isVideo = true) => {
   };
 
   const endCall = () => {
-    if (active && meetingId) {
-      socket.current.emit('videosdk_call_end', {
-        to: active,
-        meetingId: meetingId
+    if (active) {
+      socket.current.emit('webrtc_end_call', {
+        to: active
       });
     }
+    
     cleanupCall();
   };
 
   const cleanupCall = () => {
+    // Stop all tracks
+    if (localStream.current) {
+      localStream.current.getTracks().forEach(track => track.stop());
+      localStream.current = null;
+    }
+    
+    if (remoteStream.current) {
+      remoteStream.current.getTracks().forEach(track => track.stop());
+      remoteStream.current = null;
+    }
+
+    // Close peer connection
+    if (peerConnection.current) {
+      peerConnection.current.close();
+      peerConnection.current = null;
+    }
+
+    // Reset video elements
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject = null;
+    }
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = null;
+    }
+
+    // Reset states
     setIsInCall(false);
     setIsVideoCall(false);
     setIncomingCall(null);
     setCallStatus('');
-    setMeetingId(null);
-    setMeetingUrl(null);
+    setIsMuted(false);
+    setIsVideoEnabled(true);
+  };
+
+  const toggleMute = () => {
+    if (localStream.current) {
+      const audioTrack = localStream.current.getAudioTracks()[0];
+      if (audioTrack) {
+        audioTrack.enabled = !audioTrack.enabled;
+        setIsMuted(!audioTrack.enabled);
+      }
+    }
+  };
+
+  const toggleVideo = () => {
+    if (localStream.current) {
+      const videoTrack = localStream.current.getVideoTracks()[0];
+      if (videoTrack) {
+        videoTrack.enabled = !videoTrack.enabled;
+        setIsVideoEnabled(videoTrack.enabled);
+      }
+    }
   };
 
   /* ====================== Socket Setup ====================== */
   useEffect(() => {
-    // Mobile detection
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
     
     if (!socket.current) {
       socket.current = io(SOCKET_URL, {
@@ -564,15 +745,14 @@ const createMeeting = async (isVideo = true) => {
         transports: ["websocket"],
       });
 
-      socket.current.on("connect", () => setIsConnected(true));
-      socket.current.on("disconnect", () => setIsConnected(false));
-
       socket.current.on("chat_history", ({ with: user, messages }) => {
         setChats((prev) => ({
           ...prev,
           [user]: messages
         }));
       });
+
+      socket.current.on("disconnect", () => setIsConnected(false));
 
       // Updated private_message handler with MyMemory API
       socket.current.on("private_message", async (msg) => {
@@ -601,9 +781,9 @@ const createMeeting = async (isVideo = true) => {
             console.log("Translation result:", response.data);
             msg.translated = response.data.translated || msg.text;
           } catch (error) {
-            if (error.response?.data?.limitReached) {
+            if (error.response?.data?.limitReached) { // Check response.data directly
     toast.error(`${error.response.data.error}\n${error.response.data.upgradeMessage}`);
-  } else {
+  }else {
     console.error("Translation failed:", error);
   }
             msg.translated = msg.text;
@@ -650,52 +830,36 @@ const createMeeting = async (isVideo = true) => {
         setTyping((prev) => ({ ...prev, [from]: false }))
       );
 
-      // VideoSDK Socket Events
-      socket.current.on('videosdk_call_invite', ({ from, meetingId, meetingUrl, type }) => {
-        console.log(`Call invite from ${from} (type: ${type})`);
-        
-        // Check if user is already in a call
-        if (isInCall) {
-          socket.current.emit('videosdk_call_busy', { 
-            to: from,
-            meetingId: meetingId
-          });
-          return;
-        }
-
+      // WebRTC Socket Events
+      socket.current.on('webrtc_offer', ({ from, offer, type }) => {
         setIncomingCall({
           from,
-          meetingId,
-          meetingUrl,
+          offer,
           type
         });
       });
 
-      socket.current.on('videosdk_call_reject', ({ from, meetingId }) => {
-        console.log(`Call rejected by ${from}`);
+      socket.current.on('webrtc_answer', async ({ from, answer }) => {
+        if (peerConnection.current) {
+          await peerConnection.current.setRemoteDescription(answer);
+        }
+      });
+
+      socket.current.on('webrtc_ice_candidate', ({ from, candidate }) => {
+        if (peerConnection.current) {
+          peerConnection.current.addIceCandidate(candidate);
+        }
+      });
+
+      socket.current.on('webrtc_reject_call', () => {
         setCallStatus('Call rejected');
-        toast.info(`${from} rejected your call`);
         setTimeout(() => {
           cleanupCall();
         }, 2000);
       });
 
-      socket.current.on('videosdk_call_end', ({ from, meetingId }) => {
-        console.log(`Call ended by ${from}`);
-        setCallStatus('Call ended');
-        toast.info(`${from} ended the call`);
-        setTimeout(() => {
-          cleanupCall();
-        }, 2000);
-      });
-
-      socket.current.on('videosdk_call_busy', ({ from, meetingId }) => {
-        console.log(`${from} is busy`);
-        setCallStatus('User is busy');
-        toast.info(`${from} is busy in another call`);
-        setTimeout(() => {
-          cleanupCall();
-        }, 2000);
+      socket.current.on('webrtc_end_call', () => {
+        cleanupCall();
       });
 
       const storedActive = localStorage.getItem("activeUser");
@@ -710,9 +874,12 @@ const createMeeting = async (isVideo = true) => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
-      window.removeEventListener('resize', checkMobile);
+      if (socket.current) {
+        socket.current.disconnect();
+        socket.current = null;
+      }
     };
-  }, [currentUser, language]);
+  }, [currentUser,language]);
 
   useEffect(() => {
     if (socket.current && socket.current.connected) {
@@ -746,15 +913,13 @@ const createMeeting = async (isVideo = true) => {
       console.error("Socket not connected yet");
     }
   };
-
   /* =================== Toggle theme useEffect =================== */
   useEffect(() => {
-    document.querySelector('.chat-app-layout').className = 
-      theme === 'light' 
-        ? 'chat-app-layout light-theme' 
-        : 'chat-app-layout';
-  }, [theme]);
-
+  document.querySelector('.chat-app-layout').className = 
+    theme === 'light' 
+      ? 'chat-app-layout light-theme' 
+      : 'chat-app-layout';
+}, [theme]);
   /* =================== Single User Search Effect =================== */
   useEffect(() => {
     if (!search.trim()) {
@@ -864,95 +1029,94 @@ const createMeeting = async (isVideo = true) => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <ToastContainer 
-        position={isMobile ? "top-right" : "top-center"}
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme={theme === 'dark' ? 'dark' : 'light'}
-        className="chat-app-toast-container"
-      />
+    <ToastContainer 
+  position={isMobile ? "top-right" : "top-center"}
+  autoClose={5000}
+  hideProgressBar={false}
+  newestOnTop={false}
+  closeOnClick
+  rtl={false}
+  pauseOnFocusLoss
+  draggable
+  pauseOnHover
+  theme={theme === 'dark' ? 'dark' : 'light'}
+  className="chat-app-toast-container"
+/>
+{/* Hidden file inputs */}
+        <input 
+          ref={fileInputRef}
+          type="file"
+          accept="*/*"
+          style={{ display: "none" }}
+          onChange={handleFileUpload}
+        />
+        
+        <input 
+          ref={profileInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={handleProfileImageUpload}
+        />
 
-      {/* Hidden file inputs */}
-      <input 
-        ref={fileInputRef}
-        type="file"
-        accept="*/*"
-        style={{ display: "none" }}
-        onChange={handleFileUpload}
-      />
-      
-      <input 
-        ref={profileInputRef}
-        type="file"
-        accept="image/*"
-        style={{ display: "none" }}
-        onChange={handleProfileImageUpload}
-      />
-
-      {isMobile && (
-        <div className="chat-app-mobile-header">
-          <button 
-            className="chat-app-sidebar-toggle"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
-          >
-            {sidebarOpen ? "✕" : "☰"}
-          </button>
+     {isMobile && (
+      <div className="chat-app-mobile-header">
+        <button 
+          className="chat-app-sidebar-toggle"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+        >
+          {sidebarOpen ? "✕" : "☰"}
+        </button>
         </div>
-      )}
+    )}
 
       {/* Upload Progress Overlay */}
       <AnimatePresence>
-        {(isUploadingProfile || isUploadingFile) && (
+  {(isUploadingProfile || isUploadingFile) && (
+    <motion.div 
+      className="chat-app-upload-overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div 
+        className="chat-app-upload-progress"
+        initial={{ scale: 0.9 }}
+        animate={{ scale: 1 }}
+        transition={{ type: "spring" }}
+      >
+        <div className="chat-app-upload-spinner"></div>
+        <p>
+          {isUploadingProfile 
+            ? 'Uploading profile image...' 
+            : 'Uploading file...'}
+        </p>
+        <div className="chat-app-progress-bar">
           <motion.div 
-            className="chat-app-upload-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div 
-              className="chat-app-upload-progress"
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring" }}
-            >
-              <div className="chat-app-upload-spinner"></div>
-              <p>
-                {isUploadingProfile 
-                  ? 'Uploading profile image...' 
-                  : 'Uploading file...'}
-              </p>
-              <div className="chat-app-progress-bar">
-                <motion.div 
-                  className="chat-app-progress-fill" 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${uploadProgress}%` }}
-                  transition={{ duration: 0.3 }}
-                />
-              </div>
-              <p>{uploadProgress}%</p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            className="chat-app-progress-fill" 
+            initial={{ width: 0 }}
+            animate={{ width: `${uploadProgress}%` }}
+            transition={{ duration: 0.3 }}
+          />
+        </div>
+        <p>{uploadProgress}%</p>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
 
-      {/* VideoSDK Call Overlay */}
+      {/* WebRTC Call Overlay */}
       <AnimatePresence>
         {(isInCall || incomingCall) && (
           <motion.div 
-            className="videosdk-call-overlay"
+            className="webrtc-call-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div 
-              className="videosdk-call-container"
+              className="webrtc-call-container"
               variants={callOverlayVariants}
               initial="hidden"
               animate="visible"
@@ -961,25 +1125,24 @@ const createMeeting = async (isVideo = true) => {
               {/* Incoming Call */}
               {incomingCall && !isInCall && (
                 <motion.div 
-                  className="videosdk-incoming-call"
+                  className="webrtc-incoming-call"
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
                   <h3>Incoming {incomingCall.type} call from {incomingCall.from}</h3>
-                  <p className="videosdk-call-status">Click Join to enter the meeting</p>
-                  <div className="videosdk-call-actions">
+                  <div className="webrtc-call-actions">
                     <motion.button 
-                      className="videosdk-answer-btn"
-                      onClick={() => joinMeeting(incomingCall.meetingUrl)}
+                      className="webrtc-answer-btn"
+                      onClick={answerCall}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <Video size={20} />
-                      Join Meeting
+                      <Phone size={20} />
+                      Answer
                     </motion.button>
                     <motion.button 
-                      className="videosdk-reject-btn"
+                      className="webrtc-reject-btn"
                       onClick={rejectCall}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -994,36 +1157,88 @@ const createMeeting = async (isVideo = true) => {
               {/* Active Call */}
               {isInCall && (
                 <motion.div 
-                  className="videosdk-active-call"
+                  className="webrtc-active-call"
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                 >
-                  <div className="videosdk-call-header">
+                  <div className="webrtc-call-header">
                     <h3>{isVideoCall ? 'Video' : 'Audio'} call with {active}</h3>
-                    <p className="videosdk-call-status">{callStatus}</p>
-                    <p className="videosdk-meeting-id">Meeting ID: {meetingId}</p>
+                    <p className="webrtc-call-status">{callStatus}</p>
                   </div>
 
-                  <div className="videosdk-call-info">
-                    <p>Meeting is active in a separate window</p>
-                    <div className="videosdk-call-actions">
-                      <motion.button 
-                        className="videosdk-action-btn"
-                        onClick={() => window.open(meetingUrl, '_blank')}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        Reopen Meeting
-                      </motion.button>
-                      <motion.button 
-                        className="videosdk-action-btn videosdk-end-call"
-                        onClick={endCall}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        End Call
-                      </motion.button>
+                  {isVideoCall && (
+                    <div className="webrtc-video-container">
+                      <motion.video 
+                        ref={remoteVideoRef}
+                        className="webrtc-remote-video"
+                        autoPlay
+                        playsInline
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                      />
+                      <motion.video 
+                        ref={localVideoRef}
+                        className="webrtc-local-video"
+                        autoPlay
+                        playsInline
+                        muted
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.3 }}
+                      />
                     </div>
+                  )}
+
+                  {!isVideoCall && (
+                    <div className="webrtc-audio-call">
+                      <motion.div 
+                        className="webrtc-audio-avatar"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring" }}
+                      >
+                        {profileImages[active] ? (
+                          <img src={profileImages[active]} alt={active} />
+                        ) : (
+                          <div className="webrtc-avatar-fallback">
+                            {active?.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </motion.div>
+                      <audio ref={remoteVideoRef} autoPlay />
+                      <audio ref={localVideoRef} autoPlay muted />
+                    </div>
+                  )}
+
+                  <div className="webrtc-call-controls">
+                    <motion.button 
+                      className={`webrtc-control-btn ${isMuted ? 'muted' : ''}`}
+                      onClick={toggleMute}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
+                    </motion.button>
+                    
+                    {isVideoCall && (
+                      <motion.button 
+                        className={`webrtc-control-btn ${!isVideoEnabled ? 'disabled' : ''}`}
+                        onClick={toggleVideo}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        {isVideoEnabled ? <Video size={20} /> : <VideoOff size={20} />}
+                      </motion.button>
+                    )}
+                    
+                    <motion.button 
+                      className="webrtc-control-btn end-call"
+                      onClick={endCall}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <PhoneOff size={20} />
+                    </motion.button>
                   </div>
                 </motion.div>
               )}
@@ -1033,408 +1248,405 @@ const createMeeting = async (isVideo = true) => {
       </AnimatePresence>
 
       {/* ------------------------------ Sidebar ------------------------------ */}
-      {(!isMobile || sidebarOpen) && (
-        <motion.aside 
-          className={`chat-app-sidebar ${sidebarOpen ? 'active' : ''}`}
-          initial={{ x: -50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          style={{
-            ...(isMobile && {
-              background: theme === 'dark' 
-                ? 'rgba(51, 0, 102, 0.95)'
-                : 'rgba(230, 204, 255, 0.95)',
-              backdropFilter: 'blur(10px)',
-              borderRight: theme === 'dark'
-                ? '1px solid rgba(179, 136, 255, 0.2)'
-                : '1px solid rgba(102, 0, 204, 0.1)',
-              boxShadow: theme === 'dark'
-                ? '0 0 20px rgba(179, 136, 255, 0.3)'
-                : '0 0 20px rgba(102, 0, 204, 0.2)'
-            })
-          }}
-        >
-          {/* Profile Section - Top */}
-          <div className="chat-app-profile-section">
-            <div className="chat-app-profile-header">
-              <div className="chat-app-profile-avatar-container">
-                <motion.div 
-                  className="chat-app-profile-avatar chat-app-clickable" 
-                  onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {profileImages[currentUser] ? (
-                    <img 
-                      src={profileImages[currentUser]} 
-                      alt={currentUser}
-                      onError={() => setProfileImages(prev => ({ ...prev, [currentUser]: null }))}
-                    />
-                  ) : (
-                    <div className="chat-app-avatar-fallback">
-                      {currentUser?.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                </motion.div>
-              </div>
-              <h2 className="chat-app-username-large">{currentUser}</h2>
+     
+       {(!isMobile || sidebarOpen) && (
+      <motion.aside 
+        className={`chat-app-sidebar ${sidebarOpen ? 'active' : ''}`}
+        initial={{ x: -50, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+         style={{
+    ...(isMobile && {
+      background: theme === 'dark' 
+        ? 'rgba(51, 0, 102, 0.95)'  // Dark purple with 95% opacity
+        : 'rgba(230, 204, 255, 0.95)',  // Light lavender with 95% opacity
+      backdropFilter: 'blur(10px)',
+      borderRight: theme === 'dark'
+        ? '1px solid rgba(179, 136, 255, 0.2)'  // Purple accent border
+        : '1px solid rgba(102, 0, 204, 0.1)',
+      boxShadow: theme === 'dark'
+        ? '0 0 20px rgba(179, 136, 255, 0.3)'
+        : '0 0 20px rgba(102, 0, 204, 0.2)'
+    })
+  }}
+      >
+        {/* Profile Section - Top */}
+        <div className="chat-app-profile-section">
+          <div className="chat-app-profile-header">
+            <div className="chat-app-profile-avatar-container">
+              <motion.div 
+                className="chat-app-profile-avatar chat-app-clickable" 
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {profileImages[currentUser] ? (
+                  <img 
+                    src={profileImages[currentUser]} 
+                    alt={currentUser}
+                    onError={() => setProfileImages(prev => ({ ...prev, [currentUser]: null }))}
+                  />
+                ) : (
+                  <div className="chat-app-avatar-fallback">
+                    {currentUser?.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </motion.div>
             </div>
-
-            <AnimatePresence>
-              {showProfileMenu && (
-                <motion.div 
-                  className="chat-app-profile-actions"
-                  variants={profileMenuVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <motion.button 
-                    className="chat-app-profile-action-btn" 
-                    onClick={() => profileInputRef.current?.click()}
-                    disabled={isUploadingProfile}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <div className="button-content">
-                      <Upload size={16} />
-                      {isUploadingProfile ? (
-                        <div className="upload-status">
-                          <span className="percentage">{uploadProgress}%</span>
-                          <div className="progress-container">
-                            <motion.div 
-                              className="progress-bar"
-                              initial={{ width: 0 }}
-                              animate={{ width: `${uploadProgress}%` }}
-                              transition={{ duration: 0.2, ease: "easeOut" }}
-                            />
-                          </div>
-                        </div>
-                      ) : (
-                        <span>Upload Photo</span>
-                      )}
-                    </div>
-                  </motion.button>
-                  
-                  {profileImages[currentUser] && (
-                    <motion.button 
-                      className="chat-app-profile-action-btn chat-app-remove" 
-                      onClick={handleRemoveProfileImage}
-                      disabled={isUploadingProfile}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Trash2 size={16} /> Remove Photo
-                    </motion.button>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <h2 className="chat-app-username-large">{currentUser}</h2>
           </div>
 
-          <div className="chat-app-sidebar-content">
-            {/* Search bar */}
-            <motion.input
-              className="chat-app-search"
-              placeholder="Search user…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              whileFocus={{ boxShadow: "0 0 0 2px rgba(100, 108, 255, 0.3)" }}
-            />
-            
-            <div className="chat-app-user-list">
-              {/* Recent chats when search is empty */}
-              {!search.trim() && !!Object.keys(chats).length && (
-                <motion.ul 
-                  className="chat-app-people"
-                  variants={containerVariants}
-                  initial="hidden"
-                  animate="show"
-                >
-                  {Object.keys(chats)
-                    .filter((key) => Array.isArray(chats[key]) && chats[key].length > 0)
-                    .sort((a, b) => {
-                      const lastA = chats[a][chats[a].length - 1];
-                      const lastB = chats[b][chats[b].length - 1];
-                      return new Date(lastB.time) - new Date(lastA.time);
-                    })
-                    .map((username) => (
-                      <motion.li
-                        key={username}
-                        className={username === active ? "chat-app-active" : ""}
-                        onClick={() => {
-                          setActive(username);
-                          socket.current.emit("get_chat_history", { with: username });
-                          localStorage.setItem("activeUser", username);
-                          if (isMobile) setSidebarOpen(false);
-                        }}
-                        variants={itemVariants}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <div className="chat-app-user-avatar">
-                          {profileImages[username] ? (
-                            <img src={profileImages[username]} alt={username} />
-                          ) : (
-                            <User size={20} />
-                          )}
-                        </div>
-                        <div className="chat-app-user-content">
-                          <div className="chat-app-username">{username}</div>
-                          <div className="chat-app-preview">
-                            {chats[username][chats[username].length - 1]?.text?.slice(0, 30) || 
-                             (chats[username][chats[username].length - 1]?.type === 'file' ? '📎 File' : '')}
-                          </div>
-                        </div>
-                        <div className="chat-app-action-buttons">
-                          <motion.button 
-                            className="chat-app-icon-button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (!isInCall) {
-                                setActive(username);
-                                createMeeting(false);
-                              }
-                            }}
-                            disabled={isInCall}
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                          >
-                            <Phone size={18} />
-                          </motion.button>
-                          <motion.button 
-                            className="chat-app-icon-button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (!isInCall) {
-                                setActive(username);
-                                createMeeting(true);
-                              }
-                            }}
-                            disabled={isInCall}
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                          >
-                            <Video size={18} />
-                          </motion.button>
-                        </div>
-                      </motion.li>
-                    ))}
-                </motion.ul>
-              )}
+         <AnimatePresence>
+  {showProfileMenu && (
+    <motion.div 
+      className="chat-app-profile-actions"
+      variants={profileMenuVariants}
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+      transition={{ type: "spring", stiffness: 300 }}
+    >
+      <motion.button 
+        className="chat-app-profile-action-btn" 
+        onClick={() => profileInputRef.current?.click()}
+        disabled={isUploadingProfile}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        <div className="button-content">
+          <Upload size={16} />
+          {isUploadingProfile ? (
+            <div className="upload-status">
+              <span className="percentage">{uploadProgress}%</span>
+              <div className="progress-container">
+                <motion.div 
+                  className="progress-bar"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${uploadProgress}%` }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                />
+              </div>
+            </div>
+          ) : (
+            <span>Upload Photo</span>
+          )}
+        </div>
+      </motion.button>
+      
+      {profileImages[currentUser] && (
+        <motion.button 
+          className="chat-app-profile-action-btn chat-app-remove" 
+          onClick={handleRemoveProfileImage}
+          disabled={isUploadingProfile}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <Trash2 size={16} /> Remove Photo
+        </motion.button>
+      )}
+    </motion.div>
+  )}
+</AnimatePresence>
+        </div>
 
-              {/* Search results list */}
+        <div className="chat-app-sidebar-content">
+          {/* Search bar */}
+          <motion.input
+            className="chat-app-search"
+            placeholder="Search user…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            whileFocus={{ boxShadow: "0 0 0 2px rgba(100, 108, 255, 0.3)" }}
+          />
+          
+          <div className="chat-app-user-list">
+            {/* Recent chats when search is empty */}
+            {!search.trim() && !!Object.keys(chats).length && (
               <motion.ul 
                 className="chat-app-people"
                 variants={containerVariants}
                 initial="hidden"
                 animate="show"
               >
-                {people.length ? (
-                  people.map((user) => {
-                    const username = user.username;
-                    const alreadyChatted = !!chats[username];
+                {Object.keys(chats)
+                  .filter((key) => Array.isArray(chats[key]) && chats[key].length > 0)
+                  .sort((a, b) => {
+                    const lastA = chats[a][chats[a].length - 1];
+                    const lastB = chats[b][chats[b].length - 1];
+                    return new Date(lastB.time) - new Date(lastA.time);
+                  })
+                  .map((username) => (
+                    <motion.li
+                      key={username}
+                      className={username === active ? "chat-app-active" : ""}
+                      onClick={() => {
+                        setActive(username);
+                        socket.current.emit("get_chat_history", { with: username });
+                        localStorage.setItem("activeUser", username);
+                      }}
+                      variants={itemVariants}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className="chat-app-user-avatar">
+                        {profileImages[username] ? (
+                          <img src={profileImages[username]} alt={username} />
+                        ) : (
+                          <User size={20} />
+                        )}
+                      </div>
+                      <div className="chat-app-user-content">
+                        <div className="chat-app-username">{username}</div>
+                        <div className="chat-app-preview">
+                          {chats[username][chats[username].length - 1]?.text?.slice(0, 30) || 
+                           (chats[username][chats[username].length - 1]?.type === 'file' ? '📎 File' : '')}
+                        </div>
+                      </div>
+                      <div className="chat-app-action-buttons">
+                        <motion.button 
+                          className="chat-app-icon-button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!isInCall) {
+                              setActive(username);
+                              startCall(false);
+                            }
+                          }}
+                          disabled={isInCall}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <Phone size={18} />
+                        </motion.button>
+                        <motion.button 
+                          className="chat-app-icon-button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!isInCall) {
+                              setActive(username);
+                              startCall(true);
+                            }
+                          }}
+                          disabled={isInCall}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <Video size={18} />
+                        </motion.button>
+                      </div>
+                    </motion.li>
+                  ))}
+              </motion.ul>
+            )}
 
-                    return (
-                      <motion.li
-                        key={username}
-                        className={`chat-app-person-item ${
-                          username === active ? "chat-app-active" : ""
-                        } ${alreadyChatted ? "chat-app-old-user" : ""}`}
-                        onClick={() => {
-                          setActive(username);
-                          setSearch("");
-                          setPeople([]);
-                          localStorage.setItem("activeUser", username);
-                          socket.current.emit("get_chat_history", { with: username });
-                          if (isMobile) setSidebarOpen(false);
-                        }}
-                        variants={itemVariants}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <div className="chat-app-user-avatar">
-                          {profileImages[username] ? (
-                            <img src={profileImages[username]} alt={username} />
-                          ) : (
-                            <User size={20} />
+            {/* Search results list */}
+            <motion.ul 
+              className="chat-app-people"
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+            >
+              {people.length ? (
+                people.map((user) => {
+                  const username = user.username;
+                  const alreadyChatted = !!chats[username];
+
+                  return (
+                    <motion.li
+                      key={username}
+                      className={`chat-app-person-item ${
+                        username === active ? "chat-app-active" : ""
+                      } ${alreadyChatted ? "chat-app-old-user" : ""}`}
+                      onClick={() => {
+                        setActive(username);
+                        setSearch("");
+                        setPeople([]);
+                        localStorage.setItem("activeUser", username);
+                        socket.current.emit("get_chat_history", { with: username });
+                      }}
+                      variants={itemVariants}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className="chat-app-user-avatar">
+                        {profileImages[username] ? (
+                          <img src={profileImages[username]} alt={username} />
+                        ) : (
+                          <User size={20} />
+                        )}
+                      </div>
+                      <div className="chat-app-user-content">
+                        <div className="chat-app-username">
+                          {username}
+                          {alreadyChatted && (
+                            <span className="chat-app-badge">(chatted)</span>
                           )}
                         </div>
-                        <div className="chat-app-user-content">
-                          <div className="chat-app-username">
-                            {username}
-                            {alreadyChatted && (
-                              <span className="chat-app-badge">(chatted)</span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="chat-app-action-buttons">
-                          <motion.button 
-                            className="chat-app-icon-button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (!isInCall) {
-                                setActive(username);
-                                createMeeting(false);
-                              }
-                            }}
-                            disabled={isInCall}
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                          >
-                            <Phone size={18} />
-                          </motion.button>
-                          <motion.button 
-                            className="chat-app-icon-button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (!isInCall) {
-                                setActive(username);
-                                createMeeting(true);
-                              }
-                            }}
-                            disabled={isInCall}
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                          >
-                            <Video size={18} />
-                          </motion.button>
-                        </div>
-                      </motion.li>
-                    );
-                  })
-                ) : (
-                  search.trim() && (
-                    <motion.li 
-                      className="chat-app-no-results"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                    >
-                      No users found
+                      </div>
+                      <div className="chat-app-action-buttons">
+                        <motion.button 
+                          className="chat-app-icon-button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!isInCall) {
+                              setActive(username);
+                              startCall(false);
+                            }
+                          }}
+                          disabled={isInCall}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <Phone size={18} />
+                        </motion.button>
+                        <motion.button 
+                          className="chat-app-icon-button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!isInCall) {
+                              setActive(username);
+                              startCall(true);
+                            }
+                          }}
+                          disabled={isInCall}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <Video size={18} />
+                        </motion.button>
+                      </div>
                     </motion.li>
-                  )
-                )}
-              </motion.ul>
-            </div>
+                  );
+                })
+              ) : (
+                search.trim() && (
+                  <motion.li 
+                    className="chat-app-no-results"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    No users found
+                  </motion.li>
+                )
+              )}
+            </motion.ul>
           </div>
-          
-          {/* Language Picker */}
-          <div className="chat-app-language-picker">
-            <label htmlFor="language-select">🌐 Language:</label>
-            <motion.select
-              id="language-select"
-              value={language}
-              onChange={handleLanguageChange}
-              whileHover={{ scale: 1.02 }}
-            >
-              <option value="en">English</option>
-              <option value="zh">Chinese (Simplified)</option>
-              <option value="zh-TW">Chinese (Traditional)</option>
-              <option value="hi">Hindi</option>
-              <option value="es">Spanish</option>
-              <option value="fr">French</option>
-              <option value="de">German</option>
-              <option value="it">Italian</option>
-              <option value="pt">Portuguese</option>
-              <option value="ru">Russian</option>
-              <option value="ja">Japanese</option>
-              <option value="ko">Korean</option>
-              <option value="ar">Arabic</option>
-              <option value="tr">Turkish</option>
-              <option value="pl">Polish</option>
-              <option value="nl">Dutch</option>
-              <option value="sv">Swedish</option>
-              <option value="da">Danish</option>
-              <option value="no">Norwegian</option>
-              <option value="fi">Finnish</option>
-              <option value="cs">Czech</option>
-              <option value="hu">Hungarian</option>
-              <option value="ro">Romanian</option>
-              <option value="bg">Bulgarian</option>
-              <option value="hr">Croatian</option>
-              <option value="sk">Slovak</option>
-              <option value="sl">Slovenian</option>
-              <option value="et">Estonian</option>
-              <option value="lv">Latvian</option>
-              <option value="lt">Lithuanian</option>
-              <option value="mt">Maltese</option>
-              <option value="el">Greek</option>
-              <option value="he">Hebrew</option>
-              <option value="th">Thai</option>
-              <option value="vi">Vietnamese</option>
-              <option value="id">Indonesian</option>
-              <option value="ms">Malay</option>
-              <option value="tl">Filipino</option>
-              <option value="uk">Ukrainian</option>
-              <option value="be">Belarusian</option>
-              <option value="ca">Catalan</option>
-              <option value="eu">Basque</option>
-              <option value="gl">Galician</option>
-              <option value="cy">Welsh</option>
-              <option value="ga">Irish</option>
-              <option value="is">Icelandic</option>
-              <option value="mk">Macedonian</option>
-              <option value="sq">Albanian</option>
-              <option value="sr">Serbian</option>
-              <option value="bs">Bosnian</option>
-              <option value="mn">Mongolian</option>
-              <option value="kk">Kazakh</option>
-              <option value="ky">Kyrgyz</option>
-              <option value="uz">Uzbek</option>
-              <option value="tg">Tajik</option>
-              <option value="az">Azerbaijani</option>
-              <option value="hy">Armenian</option>
-              <option value="ka">Georgian</option>
-              <option value="fa">Persian</option>
-              <option value="ur">Urdu</option>
-              <option value="bn">Bengali</option>
-              <option value="ta">Tamil</option>
-              <option value="te">Telugu</option>
-              <option value="ml">Malayalam</option>
-              <option value="kn">Kannada</option>
-              <option value="mr">Marathi</option>
-              <option value="gu">Gujarati</option>
-              <option value="pa">Punjabi</option>
-              <option value="or">Odia</option>
-              <option value="as">Assamese</option>
-              <option value="ne">Nepali</option>
-              <option value="si">Sinhala</option>
-              <option value="my">Myanmar</option>
-              <option value="km">Khmer</option>
-              <option value="lo">Lao</option>
-              <option value="ka">Georgian</option>
-              <option value="am">Amharic</option>
-              <option value="sw">Swahili</option>
-              <option value="zu">Zulu</option>
-              <option value="af">Afrikaans</option>
-              <option value="xh">Xhosa</option>
-              <option value="st">Sesotho</option>
-              <option value="tn">Setswana</option>
-              <option value="ss">Siswati</option>
-              <option value="ts">Xitsonga</option>
-              <option value="ve">Tshivenda</option>
-              <option value="nso">Northern Sotho</option>
-            </motion.select>
-          </div>
-          
-          <motion.div 
-            className="chat-app-name-corner"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
+        </div>
+        {/* Language Picker */}
+        <div className="chat-app-language-picker">
+          <label htmlFor="language-select">🌐 Language:</label>
+          <motion.select
+            id="language-select"
+            value={language}
+            onChange={handleLanguageChange}
+            whileHover={{ scale: 1.02 }}
           >
-            U&Me
-          </motion.div>
-        </motion.aside>
+            <option value="en">English</option>
+            <option value="zh">Chinese (Simplified)</option>
+            <option value="zh-TW">Chinese (Traditional)</option>
+            <option value="hi">Hindi</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
+            <option value="pt">Portuguese</option>
+            <option value="ru">Russian</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+            <option value="ar">Arabic</option>
+            <option value="tr">Turkish</option>
+            <option value="pl">Polish</option>
+            <option value="nl">Dutch</option>
+            <option value="sv">Swedish</option>
+            <option value="da">Danish</option>
+            <option value="no">Norwegian</option>
+            <option value="fi">Finnish</option>
+            <option value="cs">Czech</option>
+            <option value="hu">Hungarian</option>
+            <option value="ro">Romanian</option>
+            <option value="bg">Bulgarian</option>
+            <option value="hr">Croatian</option>
+            <option value="sk">Slovak</option>
+            <option value="sl">Slovenian</option>
+            <option value="et">Estonian</option>
+            <option value="lv">Latvian</option>
+            <option value="lt">Lithuanian</option>
+            <option value="mt">Maltese</option>
+            <option value="el">Greek</option>
+            <option value="he">Hebrew</option>
+            <option value="th">Thai</option>
+            <option value="vi">Vietnamese</option>
+            <option value="id">Indonesian</option>
+            <option value="ms">Malay</option>
+            <option value="tl">Filipino</option>
+            <option value="uk">Ukrainian</option>
+            <option value="be">Belarusian</option>
+            <option value="ca">Catalan</option>
+            <option value="eu">Basque</option>
+            <option value="gl">Galician</option>
+            <option value="cy">Welsh</option>
+            <option value="ga">Irish</option>
+            <option value="is">Icelandic</option>
+            <option value="mk">Macedonian</option>
+            <option value="sq">Albanian</option>
+            <option value="sr">Serbian</option>
+            <option value="bs">Bosnian</option>
+            <option value="mn">Mongolian</option>
+            <option value="kk">Kazakh</option>
+            <option value="ky">Kyrgyz</option>
+            <option value="uz">Uzbek</option>
+            <option value="tg">Tajik</option>
+            <option value="az">Azerbaijani</option>
+            <option value="hy">Armenian</option>
+            <option value="ka">Georgian</option>
+            <option value="fa">Persian</option>
+            <option value="ur">Urdu</option>
+            <option value="bn">Bengali</option>
+            <option value="ta">Tamil</option>
+            <option value="te">Telugu</option>
+            <option value="ml">Malayalam</option>
+            <option value="kn">Kannada</option>
+            <option value="mr">Marathi</option>
+            <option value="gu">Gujarati</option>
+            <option value="pa">Punjabi</option>
+            <option value="or">Odia</option>
+            <option value="as">Assamese</option>
+            <option value="ne">Nepali</option>
+            <option value="si">Sinhala</option>
+            <option value="my">Myanmar</option>
+            <option value="km">Khmer</option>
+            <option value="lo">Lao</option>
+            <option value="ka">Georgian</option>
+            <option value="am">Amharic</option>
+            <option value="sw">Swahili</option>
+            <option value="zu">Zulu</option>
+            <option value="af">Afrikaans</option>
+            <option value="xh">Xhosa</option>
+            <option value="st">Sesotho</option>
+            <option value="tn">Setswana</option>
+            <option value="ss">Siswati</option>
+            <option value="ts">Xitsonga</option>
+            <option value="ve">Tshivenda</option>
+            <option value="nso">Northern Sotho</option>
+          </motion.select>
+        </div>
+        
+        <motion.div 
+          className="chat-app-name-corner"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          U&Me
+        </motion.div>
+      </motion.aside>
       )}
-      
-      {isMobile && sidebarOpen && (
-        <div 
-          className="chat-app-sidebar-overlay"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+ {isMobile && sidebarOpen && (
+      <div 
+        className="chat-app-sidebar-overlay"
+        onClick={() => setSidebarOpen(false)}
+      />
+    )}
 
       {/* ---------------------------- Chat section ---------------------------- */}
       <motion.main 
@@ -1445,81 +1657,80 @@ const createMeeting = async (isVideo = true) => {
       >
         {/* Header */}
         {(!isMobile || !sidebarOpen) && (
-          <header className="chat-app-header">
-            <div className="chat-app-header-user">
-              {active && (
-                <motion.div 
-                  className="chat-app-header-avatar"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring" }}
-                >
-                  {profileImages[active] ? (
-                    <img
-                      src={profileImages[active]}
-                      alt={active}
-                      onError={() =>
-                        setProfileImages((prev) => ({ ...prev, [active]: null }))
-                      }
-                    />
-                  ) : (
-                    <div className="chat-app-avatar-fallback">
-                      {active.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                </motion.div>
-              )}
-              <div className="chat-app-header-username">{active || "Select a user"}</div>
-            </div>
-            <div className="chat-app-header-actions">
-              <motion.button 
-                className="chat-app-theme-toggle"
-                onClick={toggleTheme}
-                title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+        <header className="chat-app-header">
+          <div className="chat-app-header-user">
+            {active && (
+              <motion.div 
+                className="chat-app-header-avatar"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring" }}
               >
-                {theme === 'dark' ? '☀️' : '🌙'}
-              </motion.button>
-              {active && (
-                <>
-                  <motion.button 
-                    className="chat-app-icon-button"
-                    onClick={() => createMeeting(false)}
-                    disabled={isInCall}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <Phone size={18} />
-                  </motion.button>
+                {profileImages[active] ? (
+                  <img
+                    src={profileImages[active]}
+                    alt={active}
+                    onError={() =>
+                      setProfileImages((prev) => ({ ...prev, [active]: null }))
+                    }
+                  />
+                ) : (
+                  <div className="chat-app-avatar-fallback">
+                    {active.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </motion.div>
+            )}
+            <div className="chat-app-header-username">{active || "Select a user"}</div>
+          </div>
+          <div className="chat-app-header-actions">
+            <motion.button 
+              className="chat-app-theme-toggle"
+              onClick={toggleTheme}
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </motion.button>
+            {active && (
+              <>
+                <motion.button 
+                  className="chat-app-icon-button"
+                  onClick={() => startCall(false)}
+                  disabled={isInCall}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Phone size={18} />
+                </motion.button>
 
-                  <motion.button 
-                    className="chat-app-icon-button"
-                    onClick={() => createMeeting(true)}
-                    disabled={isInCall}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <Video size={18} />
-                  </motion.button>
-                </>
-              )}
-              <motion.span 
-                className={`chat-app-status ${isConnected ? "chat-app-on" : "chat-app-off"}`}
-                animate={{ 
-                  scale: [1, 1.2, 1],
-                  opacity: [0.8, 1, 0.8]
-                }}
-                transition={{ 
-                  repeat: Infinity, 
-                  duration: 1.5,
-                  ease: "easeInOut"
-                }}
-              ></motion.span>
-            </div>
-          </header>
+                <motion.button 
+                  className="chat-app-icon-button"
+                  onClick={() => startCall(true)}
+                  disabled={isInCall}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Video size={18} />
+                </motion.button>
+              </>
+            )}
+            <motion.span 
+              className={`chat-app-status ${isConnected ? "chat-app-on" : "chat-app-off"}`}
+              animate={{ 
+                scale: [1, 1.2, 1],
+                opacity: [0.8, 1, 0.8]
+              }}
+              transition={{ 
+                repeat: Infinity, 
+                duration: 1.5,
+                ease: "easeInOut"
+              }}
+            ></motion.span>
+          </div>
+        </header>
         )}
-        
         {/* Message list */}
         <section className="chat-app-messages">
           <AnimatePresence initial={false}>
@@ -1595,7 +1806,6 @@ const createMeeting = async (isVideo = true) => {
           >
             <Paperclip size={20} />
           </motion.button>
-          
           {/* Voice Input Button */}
           {speechSupported && (
             <motion.button 
