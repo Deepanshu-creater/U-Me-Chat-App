@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   MessageSquare, 
   Globe, 
@@ -19,85 +19,68 @@ import {
   DollarSign,
   CreditCard,
   Award,
-<<<<<<< HEAD
-  Info
-} from 'lucide-react';
-import './App.css';
-import { useNavigate } from 'react-router-dom';
-export default function App() {
-
-
-const navigate = useNavigate();
-
-useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    navigate("/chat");
-  }
-}, [navigate]);
-=======
   Info,
   Moon,
   Sun,
   GraduationCap, 
   Rocket, 
   Lightbulb,
-  Plus, Minus, HelpCircle
+  Plus, 
+  Minus, 
+  HelpCircle
 } from 'lucide-react';
 import './App.css';
 import { useNavigate } from 'react-router-dom';
 import { AskExpertWidget } from './components/askexpert';
 import ContactSupport from './components/support';
 import InfoPage from './components/Infopage';
+
 export default function App() {
-
-
   const navigate = useNavigate();
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
   
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeFeature, setActiveFeature] = useState(0);
   const [scrollY, setScrollY] = useState(0);
   const [visibleMessages, setVisibleMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
-<<<<<<< HEAD
-
-=======
   const [darkMode, setDarkMode] = useState(false);
   const [openItems, setOpenItems] = useState(new Set());
   const [activeComponent, setActiveComponent] = useState(null);
   const [currentPage, setCurrentPage] = useState('home');
   const [infoSection, setInfoSection] = useState(null);
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
+  
   // Refs for smooth scrolling
   const featuresRef = useRef(null);
   const aboutRef = useRef(null);
   const pricingRef = useRef(null);
   const contactRef = useRef(null);
-<<<<<<< HEAD
+  const faqRef = useRef(null);
 
-=======
-  
-
-
+  // Redirect if logged in
   useEffect(() => {
-  if (darkMode) {
-    document.body.classList.add('dark');
-  } else {
-    document.body.classList.remove('dark');
-  }
-}, [darkMode]);
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/chat");
+    }
+  }, [navigate]);
+
+  // Dark mode effect
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  // Scroll handler
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
+  // Auto-rotate features
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveFeature((prev) => (prev + 1) % 6);
@@ -105,10 +88,6 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
   // Smooth scroll function
   const smoothScroll = (ref) => {
     setIsMenuOpen(false);
@@ -118,10 +97,6 @@ export default function App() {
     });
   };
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
   // Chat animation effect
   useEffect(() => {
     const messages = [
@@ -132,15 +107,8 @@ export default function App() {
       { id: 5, type: 'received', text: '¡Sí! Es increíble hablar sin barreras', translation: 'Yes! It\'s incredible to talk without barriers', delay: 11000 }
     ];
 
-<<<<<<< HEAD
     let timeouts = [];
 
-=======
-
-    let timeouts = [];
-
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
     const showMessages = () => {
       messages.forEach((message) => {
         const timeoutId = setTimeout(() => {
@@ -158,41 +126,22 @@ export default function App() {
         timeouts.push(timeoutId);
       });
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
       const resetTimeout = setTimeout(() => {
         setVisibleMessages([]);
         setIsTyping(false);
         setTimeout(showMessages, 1000);
       }, 14000);
 
-<<<<<<< HEAD
       timeouts.push(resetTimeout);
     };
 
     showMessages();
 
-=======
-
-      timeouts.push(resetTimeout);
-    };
-
-
-    showMessages();
-
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
     return () => {
       timeouts.forEach(clearTimeout);
     };
   }, []);
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
   const features = [
     {
       icon: Globe,
@@ -203,11 +152,7 @@ export default function App() {
     {
       icon: Video,
       title: "4K Video Calls",
-<<<<<<< HEAD
-      description: "Crystal-clear video calls with up to 100 participants and screen sharing",
-=======
-      description:"Crystal-clear video calls with adaptive bandwidth for low latency",
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
+      description: "Crystal-clear video calls with adaptive bandwidth for low latency",
       color: "#059669"
     },
     {
@@ -218,13 +163,8 @@ export default function App() {
     },
     {
       icon: Users,
-<<<<<<< HEAD
-      title: "Team Spaces",
-      description: "Dedicated workspaces for teams with channels, threads, and file management",
-=======
       title: "Fast file sharing",
       description: "Share files up to 10MB instantly with secure cloud storage integration",
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
       color: "#7C3AED"
     },
     {
@@ -240,52 +180,42 @@ export default function App() {
       color: "#0891B2"
     }
   ];
-<<<<<<< HEAD
 
-
-  const stats = [
-    { number: "50M+", label: "Active Users" },
-    { number: "180+", label: "Countries" },
-=======
-    // Toggle FAQ item
-const toggleFaqItem = (index) => {
-  const newOpenItems = new Set(openItems);
-  if (newOpenItems.has(index)) {
-    newOpenItems.delete(index);
-  } else {
-    newOpenItems.add(index);
-  }
-  setOpenItems(newOpenItems);
-};
-
+  // Toggle FAQ item
+  const toggleFaqItem = (index) => {
+    const newOpenItems = new Set(openItems);
+    if (newOpenItems.has(index)) {
+      newOpenItems.delete(index);
+    } else {
+      newOpenItems.add(index);
+    }
+    setOpenItems(newOpenItems);
+  };
 
   const handleContactSupport = () => {
     setCurrentPage('support');
   };
 
-
   const handleNavigateBack = () => {
     setCurrentPage('home');
   };
-
 
   const handleNavigateHome = () => {
     setCurrentPage('home');
   };
 
-
   const handleNavigateToInfo = (section) => {
-  setInfoSection(section);
-  setCurrentPage('info');
-};
+    setInfoSection(section);
+    setCurrentPage('info');
+  };
 
+  const handleNavigateBackFromInfo = () => {
+    setCurrentPage('home');
+    setInfoSection(null);
+  };
 
-const handleNavigateBackFromInfo = () => {
-  setCurrentPage('home');
-  setInfoSection(null);
-};
   // Conditional rendering
-   if (currentPage === 'support') {
+  if (currentPage === 'support') {
     return (
       <ContactSupport 
         onNavigateBack={handleNavigateBack}
@@ -293,15 +223,17 @@ const handleNavigateBackFromInfo = () => {
       />
     );
   }
+  
   if (currentPage === 'info') {
-  return (
-    <InfoPage 
-      section={infoSection}
-      onNavigateBack={handleNavigateBackFromInfo}
-      onNavigateHome={handleNavigateHome}
-    />
-  );
-}
+    return (
+      <InfoPage 
+        section={infoSection}
+        onNavigateBack={handleNavigateBackFromInfo}
+        onNavigateHome={handleNavigateHome}
+      />
+    );
+  }
+
   const faqData = [
     {
       question: "How does the real-time translation feature work?",
@@ -344,97 +276,43 @@ const handleNavigateBackFromInfo = () => {
       answer: "Yes, premium users can enable automatic cloud backup of their chat history. Backups are encrypted and can be restored when switching devices. You can also export specific conversations as encrypted files for local storage."
     }
   ];
+
   const stats = [
     { number: "50M+", label: "Active Users" },
     { number: "185+", label: "Countries" },
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
     { number: "99.99%", label: "Uptime" },
     { number: "500ms", label: "Avg Response" }
   ];
 
-<<<<<<< HEAD
   const testimonials = [
     {
-      name: "Alex Chen",
-      role: "CEO, TechFlow",
-      avatar: "AC",
+      name: "Rohit Mehra",
+      role: "CEO, BharatTech Solutions",
+      avatar: "RM",
       rating: 5,
-      text: "U&Me revolutionized our global communication. The translation feature is absolutely game-changing!"
+      text: "U&Me transformed how our team collaborates across cities. The real-time translation feature is truly a game-changer!"
     },
     {
-      name: "Maria Rodriguez",
-      role: "Design Lead, Pixel Co",
-      avatar: "MR",
+      name: "Ananya Iyer",
+      role: "Design Lead, Kreative Studio",
+      avatar: "AI",
       rating: 5,
-      text: "The video quality is incredible, and the interface is so intuitive. Best chat app we've ever used."
+      text: "The video quality is outstanding, and the interface feels so natural to use. Easily the best communication tool we've used."
     },
     {
-      name: "James Wilson",
-      role: "Startup Founder",
-      avatar: "JW",
+      name: "Siddharth Verma",
+      role: "Founder, Innovana Startups",
+      avatar: "SV",
       rating: 5,
-      text: "Security and speed combined perfectly. Our sensitive discussions are safe and lightning-fast."
+      text: "It's the perfect blend of speed and security. We can now discuss sensitive ideas with full confidence."
     }
   ];
 
-  const contactMethods = [
-    {
-      icon: Mail,
-      title: "Email Us",
-      detail: "support@uandme.app",
-      action: "mailto:support@uandme.app"
-    },
-    {
-      icon: Phone,
-      title: "Call Us",
-      detail: "+1 (555) 123-4567",
-      action: "tel:+15551234567"
-    },
-    {
-      icon: MapPin,
-      title: "Visit Us",
-      detail: "123 Tech Street, Silicon Valley",
-      action: "https://maps.google.com"
-    },
-    {
-      icon: DollarSign,
-      title: "Sales Inquiry",
-      detail: "Know about our production value",
-      action: "https://uandme.app/sales"
-    }
-  ];
-=======
-
-  const testimonials = [
-    {
-  name: "Rohit Mehra",
-  role: "CEO, BharatTech Solutions",
-  avatar: "RM",
-  rating: 5,
-  text: "U&Me transformed how our team collaborates across cities. The real-time translation feature is truly a game-changer!"
-},
-{
-  name: "Ananya Iyer",
-  role: "Design Lead, Kreative Studio",
-  avatar: "AI",
-  rating: 5,
-  text: "The video quality is outstanding, and the interface feels so natural to use. Easily the best communication tool we've used."
-},
-{
-  name: "Siddharth Verma",
-  role: "Founder, Innovana Startups",
-  avatar: "SV",
-  rating: 5,
-  text: "It's the perfect blend of speed and security. We can now discuss sensitive ideas with full confidence."
-}
-
-
-  ];
   const transport = () => {
-    navigate('/login');}
+    navigate('/login');
+  };
 
-
-      const renderComponent = () => {
+  const renderComponent = () => {
     switch(activeComponent) {
       case 'AskExpertWidget':
         return <AskExpertWidget onClose={() => setActiveComponent(null)} />;
@@ -442,38 +320,37 @@ const handleNavigateBackFromInfo = () => {
         return null;
     }
   };
-const contactMethods = [
-  {
-    icon: GraduationCap,
-    title: "Ask an Expert",
-    detail: "Chat live with our support team for instant help",
-    action: () => setActiveComponent('AskExpertWidget'), // Will render the chat widget
-    type: 'component' // Indicates this renders a component
-  },
-  {
-    icon: Rocket,
-    title: "Start a Project",
-    detail: "Get a customized quote for your project needs",
-    action: () => navigate('/start-project'), // Will render StartProjectForm
-    type: 'route' // Indicates this uses React Router navigation
-  },
-  {
-    icon: MessageSquare,
-    title: "Send Feedback",
-    detail: "Help us improve by sharing your experience",
-    action: () => navigate('/feedback'), // Your existing feedback form
-    type: 'route'
-  },
-  {
-    icon: Lightbulb,
-    title: "Suggest a Feature",
-    detail: "Vote on or propose new features for U&Me",
-    action: () => navigate('/suggest-feature'), // Will render SuggestFeatureForm
-    type: 'route'
-  }
-];
 
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
+  const contactMethods = [
+    {
+      icon: GraduationCap,
+      title: "Ask an Expert",
+      detail: "Chat live with our support team for instant help",
+      action: () => setActiveComponent('AskExpertWidget'),
+      type: 'component'
+    },
+    {
+      icon: Rocket,
+      title: "Start a Project",
+      detail: "Get a customized quote for your project needs",
+      action: () => navigate('/start-project'),
+      type: 'route'
+    },
+    {
+      icon: MessageSquare,
+      title: "Send Feedback",
+      detail: "Help us improve by sharing your experience",
+      action: () => navigate('/feedback'),
+      type: 'route'
+    },
+    {
+      icon: Lightbulb,
+      title: "Suggest a Feature",
+      detail: "Vote on or propose new features for U&Me",
+      action: () => navigate('/suggest-feature'),
+      type: 'route'
+    }
+  ];
 
   return (
     <div className="app">
@@ -485,34 +362,23 @@ const contactMethods = [
             <span>U&Me</span>
           </div>
           
-<<<<<<< HEAD
-          <div className={`nav-menu ${isMenuOpen ? 'active' : ''}`}>
-            <a href="#features" onClick={() => smoothScroll(featuresRef)}>Features</a>
-            <a href="#about" onClick={() => smoothScroll(aboutRef)}>About</a>
-            <a href="#contact" onClick={() => smoothScroll(contactRef)}>Contact</a>
-            <button className="nav-cta" onClick={()=>navigate('/register')}>Get Started</button>
-          </div>
-
-=======
           <div className={`nav-menu ${isMenuOpen ? 'active' : ''} `}>
             <button 
-  className="theme-toggle"
-  onClick={() => setDarkMode(!darkMode)}
->
-  <div className="theme-icon">
-    {darkMode ? <Moon size={16} /> : <Sun size={16} />}
-  </div>
-</button>
+              className="theme-toggle"
+              onClick={() => setDarkMode(!darkMode)}
+            >
+              <div className="theme-icon">
+                {darkMode ? <Moon size={16} /> : <Sun size={16} />}
+              </div>
+            </button>
             <a href="#" onClick={() => smoothScroll(featuresRef)}>Home</a>
             <a href="#features" onClick={() => smoothScroll(featuresRef)}>Features</a>
             <a href="#about" onClick={() => smoothScroll(aboutRef)}>About</a>
             <a href="#contact" onClick={() => smoothScroll(contactRef)}>Contact</a>
             <a href="#faq" onClick={() => smoothScroll(faqRef)}>FAQ</a>
-            <button className="nav-cta" onClick={()=>navigate('/register')}>Get Started</button>
+            <button className="nav-cta" onClick={() => navigate('/register')}>Get Started</button>
           </div>
 
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
           <button 
             className="menu-toggle"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -522,23 +388,10 @@ const contactMethods = [
         </div>
       </nav>
 
-<<<<<<< HEAD
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-container">
-          <div className="hero-content">
-            <div className="hero-badge">
-              <Star size={16} />
-              <span>Rated #1 Chat App 2025</span>
-            </div>
-            
-=======
-
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-container">
           <div className="hero-content"> 
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
             <h1 className="hero-title">
               Connect Globally,
               <span className="gradient-text"> Chat Locally</span>
@@ -550,10 +403,6 @@ const contactMethods = [
               barriers and connect with anyone, anywhere.
             </p>
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
             <div className="hero-actions">
               <button className="primary-btn" onClick={() => navigate('/register')}>
                 <Play size={20} />
@@ -565,10 +414,6 @@ const contactMethods = [
               </button>
             </div>
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
             <div className="hero-stats">
               {stats.map((stat, index) => (
                 <div key={index} className="stat-item">
@@ -579,10 +424,6 @@ const contactMethods = [
             </div>
           </div>
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
           <div className="hero-visual">
             <div className="phone-mockup">
               <div className="screen">
@@ -626,10 +467,6 @@ const contactMethods = [
         </div>
       </section>
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
       {/* Features Section */}
       <section className="features" id="features" ref={featuresRef}>
         <div className="container">
@@ -638,10 +475,6 @@ const contactMethods = [
             <p>Everything you need to stay connected with your team and loved ones</p>
           </div>
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
           <div className="features-grid">
             {features.map((feature, index) => {
               const Icon = feature.icon;
@@ -657,11 +490,7 @@ const contactMethods = [
                   <h3>{feature.title}</h3>
                   <p>{feature.description}</p>
                   <div className="feature-arrow">
-<<<<<<< HEAD
-                    <ArrowRight size={20} />
-=======
                     <ArrowRight size={20} onClick={transport}/>
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
                   </div>
                 </div>
               );
@@ -670,10 +499,6 @@ const contactMethods = [
         </div>
       </section>
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
       {/* About Section */}
       <section className="about" id="about" ref={aboutRef}>
         <div className="container">
@@ -682,10 +507,6 @@ const contactMethods = [
             <p>Our mission to connect the world through seamless communication</p>
           </div>
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
           <div className="about-content">
             <div className="about-text">
               <h3>Breaking Language Barriers Since 2022</h3>
@@ -731,10 +552,6 @@ const contactMethods = [
         </div>
       </section>
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
       {/* Testimonials Section */}
       <section className="testimonials">
         <div className="container">
@@ -743,10 +560,6 @@ const contactMethods = [
             <p>See what our users have to say about U&Me</p>
           </div>
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
           <div className="testimonials-grid">
             {testimonials.map((testimonial, index) => (
               <div key={index} className="testimonial-card">
@@ -769,10 +582,6 @@ const contactMethods = [
         </div>
       </section>
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
       {/* Contact Section */}
       <section className="contact" id="contact" ref={contactRef}>
         <div className="container">
@@ -781,156 +590,87 @@ const contactMethods = [
             <p>We'd love to hear from you. Contact us anytime.</p>
           </div>
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
           <div className="contact-content">
             <div className="contact-methods">
               {contactMethods.map((method, index) => {
                 const Icon = method.icon;
                 return (
-                  <a 
+                  <button 
                     key={index} 
-<<<<<<< HEAD
-                    href={method.action} 
-                    className="contact-card"
-                    target="_blank" 
-                    rel="noopener noreferrer"
-=======
                     onClick={method.action} 
                     className="contact-card"
-                    target="_blank" 
-                    rel="noopener noreferrer"
                     style={{cursor: 'pointer'}}
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
                   >
                     <div className="contact-icon">
                       <Icon size={32} />
                     </div>
                     <h3>{method.title}</h3>
                     <p>{method.detail}</p>
-                  </a>
+                  </button>
                 );
               })}
             </div>
-<<<<<<< HEAD
-
-            <form className="contact-form">
-              <div className="form-group">
-                <label htmlFor="name">Name</label>
-                <input type="text" id="name" placeholder="Your name" required />
-              </div>
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <input type="email" id="email" placeholder="your@email.com" required />
-              </div>
-              <div className="form-group">
-                <label htmlFor="message">Message</label>
-                <textarea id="message" rows="5" placeholder="Your message..." required></textarea>
-              </div>
-              <button type="submit" className="primary-btn">
-                Send Message
-                <ArrowRight size={20} />
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="cta">
-        <div className="container">
-          <div className="cta-content">
-            <h2>Ready to transform your communication?</h2>
-            <p>Join millions of users who have already made the switch to U&Me</p>
-            <div className="cta-actions">
-              <button className="primary-btn large">
-                Get Started Free
-                <ArrowRight size={20} />
-              </button>
-              <div className="cta-features">
-                <div className="cta-feature">
-                  <CheckCircle size={16} />
-                  <span>Free 30-day trial</span>
-                </div>
-                <div className="cta-feature">
-                  <CheckCircle size={16} />
-                  <span>No credit card required</span>
-                </div>
-                <div className="cta-feature">
-                  <CheckCircle size={16} />
-                  <span>Cancel anytime</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-=======
           </div>
           {activeComponent && renderComponent()}
         </div>
       </section>
+
       {/* FAQ Section */}
-   <section className="faq" id="faq" >
-  <div className="container">
-    <div className="section-header">
-      <div className="faq-icon">
-        <HelpCircle size={48} />
-      </div>
-      <h2>Frequently Asked Questions</h2>
-      <p>Everything you need to know about U&Me</p>
-    </div>
+      <section className="faq" id="faq" ref={faqRef}>
+        <div className="container">
+          <div className="section-header">
+            <div className="faq-icon">
+              <HelpCircle size={48} />
+            </div>
+            <h2>Frequently Asked Questions</h2>
+            <p>Everything you need to know about U&Me</p>
+          </div>
 
+          <div className="faq-container">
+            <div className="faq-list">
+              {faqData.map((item, index) => (
+                <div 
+                  key={index} 
+                  className={`faq-item ${openItems.has(index) ? 'active' : ''}`}
+                >
+                  <button 
+                    className="faq-question"
+                    onClick={() => toggleFaqItem(index)}
+                    aria-expanded={openItems.has(index)}
+                  >
+                    <span className="question-text">{item.question}</span>
+                    <div className="faq-icon-toggle">
+                      {openItems.has(index) ? 
+                        <Minus size={20} /> : 
+                        <Plus size={20} />
+                      }
+                    </div>
+                  </button>
+                  
+                  <div className={`faq-answer ${openItems.has(index) ? 'expanded' : ''}`}>
+                    <div className="faq-answer-content">
+                      <p>{item.answer}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-    <div className="faq-container">
-      <div className="faq-list">
-        {faqData.map((item, index) => (
-          <div 
-            key={index} 
-            className={`faq-item ${openItems.has(index) ? 'active' : ''}`}
-          >
-            <button 
-              className="faq-question"
-              onClick={() => toggleFaqItem(index)}
-              aria-expanded={openItems.has(index)}
-            >
-              <span className="question-text">{item.question}</span>
-              <div className="faq-icon-toggle">
-                {openItems.has(index) ? 
-                  <Minus size={20} /> : 
-                  <Plus size={20} />
-                }
-              </div>
-            </button>
-            
-            <div className={`faq-answer ${openItems.has(index) ? 'expanded' : ''}`}>
-              <div className="faq-answer-content">
-                <p>{item.answer}</p>
+            <div className="faq-support">
+              <div className="support-card">
+                <h3>Still have questions?</h3>
+                <p>Our support team is here to help you get the most out of U&Me.</p>
+                <div className="support-actions">
+                  <button className="primary-btn" onClick={handleContactSupport}>
+                    Contact Support
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        ))}
-      </div>
-
-
-      <div className="faq-support">
-        <div className="support-card">
-          <h3>Still have questions?</h3>
-          <p>Our support team is here to help you get the most out of U&Me.</p>
-          <div className="support-actions">
-            <button className="primary-btn" onClick={handleContactSupport}>
-              Contact Support
-            </button>
-          </div>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
+      </section>
+
       {/* Footer */}
       <footer className="footer">
         <div className="container">
@@ -943,55 +683,29 @@ const contactMethods = [
               <p>Connecting the world through seamless communication</p>
             </div>
             
-<<<<<<< HEAD
             <div className="footer-links">
               <div className="link-group">
                 <h4>Product</h4>
                 <a href="#features" onClick={() => smoothScroll(featuresRef)}>Features</a>
-                <a href="#pricing" onClick={() => smoothScroll(pricingRef)}>Pricing</a>
-                <a href="#">Security</a>
-                <a href="#">Integrations</a>
+                <a href="#pricing" onClick={() => handleNavigateToInfo('pricing')}>Pricing</a>
+                <a href="#" onClick={() => handleNavigateToInfo('security')}>Security</a>
+                <a href="#" onClick={() => handleNavigateToInfo('integrations')}>Integrations</a>
               </div>
               <div className="link-group">
                 <h4>Company</h4>
                 <a href="#about" onClick={() => smoothScroll(aboutRef)}>About</a>
-                <a href="#">Careers</a>
-                <a href="#">Press</a>
-                <a href="#contact" onClick={() => smoothScroll(contactRef)}>Contact</a>
+                <a href="#" onClick={() => handleNavigateToInfo('careers')}>Careers</a>
+                <a href="#" onClick={() => handleNavigateToInfo('press')}>Press</a>
+                <a href="#contact" onClick={handleContactSupport}>Contact</a>
               </div>
               <div className="link-group">
                 <h4>Support</h4>
-                <a href="#">Help Center</a>
-                <a href="#">Community</a>
-                <a href="#">API Docs</a>
-                <a href="#">Status</a>
+                <a href="#" onClick={() => handleNavigateToInfo('help-center')}>Help Center</a>
+                <a href="#" onClick={() => handleNavigateToInfo('community')}>Community</a>
+                <a href="#" onClick={() => handleNavigateToInfo('api-docs')}>API Docs</a>
+                <a href="#" onClick={() => handleNavigateToInfo('status')}>Status</a>
               </div>
             </div>
-=======
-           <div className="footer-links">
-  <div className="link-group">
-    <h4>Product</h4>
-    <a href="#features" onClick={() => smoothScroll(featuresRef)}>Features</a>
-    <a href="#pricing" onClick={() => handleNavigateToInfo('pricing')}>Pricing</a>
-    <a href="#" onClick={() => handleNavigateToInfo('security')}>Security</a>
-    <a href="#" onClick={() => handleNavigateToInfo('integrations')}>Integrations</a>
-  </div>
-  <div className="link-group">
-    <h4>Company</h4>
-    <a href="#about" onClick={() => smoothScroll(aboutRef)}>About</a>
-    <a href="#" onClick={() => handleNavigateToInfo('careers')}>Careers</a>
-    <a href="#" onClick={() => handleNavigateToInfo('press')}>Press</a>
-    <a href="#contact" onClick={handleContactSupport}>Contact</a>
-  </div>
-  <div className="link-group">
-    <h4>Support</h4>
-    <a href="#" onClick={() => handleNavigateToInfo('help-center')}>Help Center</a>
-    <a href="#" onClick={() => handleNavigateToInfo('community')}>Community</a>
-    <a href="#" onClick={() => handleNavigateToInfo('api-docs')}>API Docs</a>
-    <a href="#" onClick={() => handleNavigateToInfo('status')}>Status</a>
-  </div>
-</div>
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
           </div>
           
           <div className="footer-bottom">
