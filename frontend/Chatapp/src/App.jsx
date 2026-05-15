@@ -36,6 +36,13 @@ export default function App() {
 
 
   const navigate = useNavigate();
+  useEffect(() => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    navigate("/chat");
+  }
+}, [navigate]);
   
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeFeature, setActiveFeature] = useState(0);
