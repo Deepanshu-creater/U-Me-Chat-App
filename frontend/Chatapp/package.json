@@ -15,22 +15,16 @@
     "@mui/icons-material": "^7.2.0",
     "@mui/material": "^7.2.0",
     "axios": "^1.10.0",
-<<<<<<< HEAD
-=======
     "env": "^0.0.2",
     "firebase": "^12.2.1",
     "framer-motion": "^12.23.12",
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
     "io": "^1.5.3",
     "lucide-react": "^0.523.0",
     "prop-types": "^15.8.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.3",
-<<<<<<< HEAD
-=======
     "react-toastify": "^11.0.5",
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
     "socket-client": "^1.0.0",
     "socket.io-client": "^4.8.1"
   },
