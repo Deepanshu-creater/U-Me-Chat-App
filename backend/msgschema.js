@@ -1,15 +1,4 @@
 const mongoose = require("mongoose");
-<<<<<<< HEAD
-const messageSchema = new mongoose.Schema({
-  from:       { type: String, required: true },
-  to:         { type: String, required: true },
-  text:       { type: String, required: true },
-  time:       { type: String, required: true },
-  delivered:  { type: Boolean, default: false }
-});
-
-const MessageModel = mongoose.model("Message", messageSchema);
-=======
 
 const messageSchema = new mongoose.Schema({
   from: { 
@@ -69,5 +58,4 @@ const messageSchema = new mongoose.Schema({
 });
 
 const MessageModel = mongoose.model("Messagestore", messageSchema);
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
 module.exports = MessageModel;

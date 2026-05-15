@@ -1,36 +1,10 @@
 let mongoose = require("mongoose");
-
-<<<<<<< HEAD
 let userdata=mongoose.Schema({
    username: {
-=======
-let userdata = mongoose.Schema({
-  username: {
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
+  
     type: String,
     required: true,
-    unique: true,
-    match: /^(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).+$/, // at least one number & special char
-<<<<<<< HEAD
-    },
-    email:{
-        type:String,
-        required:true,
-        unique:true
-    },
-    phone:{
-        type:String,
-        required:true
-    },
-    password:{
-        type:String,
-        required:true
-    },
-});
-
-let Appmodel = mongoose.model("userinfo",userdata)
-module.exports = Appmodel ;
-=======
+    unique: true
   },
   email: {
     type: String,
@@ -108,4 +82,3 @@ module.exports = Appmodel ;
 
 let Appmodel = mongoose.model("userinformation", userdata);
 module.exports = Appmodel;
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b

@@ -1,31 +1,8 @@
-<<<<<<< HEAD
-/* ======================== *
- *     IMPORT MODULES      *
- * ======================== */
-=======
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
 const http = require("http");
 const express = require("express");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const mongoose = require("mongoose");
-<<<<<<< HEAD
-require("dotenv").config();
-
-/* ======================== *
- *      CONTROLLERS        *
- * ======================== */
-const registerUser = require("./controller");
-const loginUser = require("./controller");
-
-/* ======================== *
- *         MODELS          *
- * ======================== */
-const Appmodel = require("./schema");         // User model
-const MessageModel = require("./msgschema");  // Message model
-
-/* ======================== *
-=======
 const multer = require("multer");
 const {sendNotification} = require("./firebaseAdmin");
 const { v2: cloudinary } = require("cloudinary");
@@ -34,17 +11,10 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 /* ======================== *
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
  *       APP SETUP         *
  * ======================== */
 const app = express();
 const server = http.createServer(app);
-<<<<<<< HEAD
-app.use(cors());
-app.use(express.json());
-
-/* ======================== *
-=======
 const corsOptions = {
   origin: 'https://u-me-chat-app.vercel.app', // No trailing slash here
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -114,17 +84,12 @@ async function generateVideoSDKToken(roomId, username) {
 }
 
 /* ======================== *
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
  *      AUTH ROUTES        *
  * ======================== */
 app.post("/register", registerUser.registerUser);
 app.post("/login", loginUser.loginUser);
-<<<<<<< HEAD
-
-=======
 app.post("/forgot-password", forgotPassword.forgotPassword);
 app.post("/reset-password", resetPassword.resetPassword);
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
 
 /* ============================ *
  *      USER SEARCH ROUTE      *
@@ -148,8 +113,6 @@ app.get("/users", async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
-=======
 /* ======================== *
  *     TRANSLATION ROUTE   *
  * ======================== */
@@ -455,7 +418,6 @@ app.get("/profile-images", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch profile images" });
   }
 });
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
 
 /* ============================ *
  *         SOCKET.IO           *
@@ -473,11 +435,8 @@ io.on("connection", async (socket) => {
     return socket.disconnect();
   }
 
-<<<<<<< HEAD
-=======
   // Store username in socket object for easy access
   socket.username = username;
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
   users[username] = socket.id;
   console.log(`${username} connected (${socket.id})`);
 
@@ -492,15 +451,12 @@ io.on("connection", async (socket) => {
         to: msg.to,
         text: msg.text,
         time: msg.time,
-<<<<<<< HEAD
-=======
         type: msg.type,
         fileUrl: msg.fileUrl,
         fileName: msg.fileName,
         fileSize: msg.fileSize,
         fileType: msg.fileType,
         format: msg.format,
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
         self: false
       });
 
@@ -511,11 +467,7 @@ io.on("connection", async (socket) => {
   }
 
   /* ---- 2. Private message handler ---- */
-<<<<<<< HEAD
-  socket.on("private_message", async ({ to, text,lang }) => {
-=======
   socket.on("private_message", async ({ to, text, lang }) => {
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
     if (!text?.trim()) return;
 
     const currentTime = new Date().toISOString();
@@ -524,12 +476,8 @@ io.on("connection", async (socket) => {
       to,
       text: text.trim(),
       time: currentTime,
-<<<<<<< HEAD
-      lang : lang || "en",
-=======
       lang: lang || "en",
       type: "text",
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
       delivered: false,
       createdAt: new Date()
     };
@@ -547,10 +495,7 @@ io.on("connection", async (socket) => {
           text: text.trim(),
           time: currentTime,
           lang: lang || "en",
-<<<<<<< HEAD
-=======
           type: "text",
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
           self: false
         });
 
@@ -566,10 +511,7 @@ io.on("connection", async (socket) => {
         text: text.trim(),
         time: currentTime,
         lang: lang || "en",
-<<<<<<< HEAD
-=======
         type: "text",
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
         self: true
       });
 
@@ -579,8 +521,6 @@ io.on("connection", async (socket) => {
     }
   });
 
-<<<<<<< HEAD
-=======
   /* ---- 2.1. File message handler ---- */
   socket.on("file_message", async (fileData) => {
     const { to, fileUrl, fileName, fileSize, fileType, format, time, lang } = fileData;
@@ -652,7 +592,6 @@ io.on("connection", async (socket) => {
     }
   });
 
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
   /* ---- 3. Typing indicators ---- */
   socket.on("typing", ({ to }) => {
     const targetId = users[to];
@@ -686,15 +625,12 @@ io.on("connection", async (socket) => {
         to: msg.to,
         text: msg.text,
         time: msg.time,
-<<<<<<< HEAD
-=======
         type: msg.type || "text",
         fileUrl: msg.fileUrl,
         fileName: msg.fileName,
         fileSize: msg.fileSize,
         fileType: msg.fileType,
         format: msg.format,
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
         self: msg.from === username
       }));
 
@@ -704,14 +640,9 @@ io.on("connection", async (socket) => {
       socket.emit("chat_history_error", { error: "Failed to fetch chat history" });
     }
   });
-<<<<<<< HEAD
-  /* ---- 5. Language update ---- */
-    socket.on('language_update', ({ username: updatedUsername, language }) => {
-=======
 
   /* ---- 5. Language update ---- */
   socket.on('language_update', ({ username: updatedUsername, language }) => {
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
     console.log(`User ${updatedUsername} updated language to ${language}`);
     
     // Broadcast to all connected users (including the sender)
@@ -720,9 +651,6 @@ io.on("connection", async (socket) => {
       language: language 
     });
   });
-<<<<<<< HEAD
-  /* ---- 6. Disconnect cleanup ---- */
-=======
 
   /* ---- 6. Profile update broadcast ---- */
   socket.on('profile_updated', ({ username: updatedUsername, imageUrl }) => {
@@ -802,74 +730,12 @@ io.on("connection", async (socket) => {
   });
 
   /* ---- 7. Disconnect cleanup ---- */
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
   socket.on("disconnect", () => {
     console.log(`${username} disconnected`);
     delete users[username];
   });
 });
 
-<<<<<<< HEAD
- /* -----7. Translation feature--------- */
- // Backend route for MyMemory API translation
-app.post("/translate", async (req, res) => {
-  const { text, sourceLang, targetLang } = req.body;
-
-  if (!text || !sourceLang || !targetLang) {
-    return res.status(400).json({ error: "Missing required fields: text, sourceLang, targetLang" });
-  }
-
-  // Skip translation if source and target are the same
-  if (sourceLang === targetLang) {
-    return res.json({ translated: text });
-  }
-
-  try {
-    const langPair = `${sourceLang}|${targetLang}`;
-    const encodedText = encodeURIComponent(text);
-    const apiUrl = `https://api.mymemory.translated.net/get?q=${encodedText}&langpair=${langPair}`;
-
-    const response = await fetch(apiUrl, {
-      method: "GET",
-      headers: {
-        "User-Agent": "U&Me/1.0"
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    
-    // MyMemory API returns translation in responseData.translatedText
-    if (data.responseData && data.responseData.translatedText) {
-      return res.json({ 
-        translated: data.responseData.translatedText,
-        confidence: data.responseData.match || 0
-      });
-    } else {
-      // Fallback to original text if translation fails
-      return res.json({ translated: text });
-    }
-  } catch (error) {
-    console.error("Translation error:", error);
-    // Return original text on error instead of failing
-    return res.json({ translated: text });
-  }
-});
- 
-
-/* ============================ *
- *   CONNECT TO MONGODB & RUN  *
- * ============================ */
-mongoose.connect(process.env.DBURL)
-  .then(() => {
-    console.log("Connected to MongoDB");
-    server.listen(3001, () => console.log("Server running on port 3001"));
-  })
-  .catch(err => console.error("MongoDB connection error:", err));
-=======
 /* ============================ *
  *   CONNECT TO MONGODB & RUN  *
  * ============================ */
@@ -887,4 +753,3 @@ mongoose.connect(process.env.DBURL)
     console.error(" MongoDB connection error:", err);
     process.exit(1); // Exit if DB connection fails
   });
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b

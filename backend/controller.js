@@ -1,11 +1,8 @@
 const Appmodel = require("./schema");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-<<<<<<< HEAD
-=======
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
 const registerUser = async (req, res) => {
     const { username, email, phone, password } = req.body;
      console.log("REGISTER BODY:", req.body);
@@ -60,9 +57,6 @@ const loginUser = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 }
-<<<<<<< HEAD
-module.exports = {registerUser, loginUser};
-=======
 const forgotPassword = async (req, res) => {
   try {
     // 1. Find user with explicit field selection
@@ -254,4 +248,3 @@ const resetPassword = async (req, res) => {
 module.exports = { registerUser, loginUser, forgotPassword, resetPassword };
   
  
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b

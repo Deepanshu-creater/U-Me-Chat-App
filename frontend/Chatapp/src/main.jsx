@@ -10,50 +10,48 @@ import { StartProjectForm } from './components/spfform.jsx';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { SuggestFeatureForm } from './components/safform.jsx';
 import ResetPassword from './components/resetpassword.jsx';
-
 const boot = ReactDOM.createRoot(document.getElementById('root'));
-
-const routing = createBrowserRouter([
+let routing= createBrowserRouter([
     {
-        path: '/',
-        element: <App />,
+      path: '/',
+      element: <App/>,
     },
     {
-        path: '/download',
-        element: <DownloadPage />,
+      path: '/download',
+      element: <DownloadPage/>,
     },
     {
-        path: '/login',
-        element: <Login />,
+      path: '/login',
+      element: <Login/>,
     },
     {
-        path: '/register',
-        element: <Register />,
+      path: '/register',
+      element: <Register/>,
     },
     {
-        path: '/chat',
-        element: <ChatApp />
+      path: '/chat',
+      element: <ChatApp/>
     },
     {
-        path: "/feedback",
-        element: <FeedbackForm />
+      path:"/feedback",
+      element: <FeedbackForm/>
     },
     {
-        path: '/start-project',
-        element: <StartProjectForm />
+      path: '/start-project',
+      element: <StartProjectForm/>
     },
     {
-        path: '/suggest-feature',
-        element: <SuggestFeatureForm />
+      path: '/suggest-feature',
+      element: <SuggestFeatureForm/>
     },
     {
-        path: '/reset-password',
-        element: <ResetPassword />
+      path: '/reset-password',
+      element: <ResetPassword/>
     }
-]);
-
+])
 boot.render(
-    <React.StrictMode>
-        <RouterProvider router={routing} />
-    </React.StrictMode>
+  <React.StrictMode>
+    <RouterProvider router={routing}/>
+  </React.StrictMode>
 );
+

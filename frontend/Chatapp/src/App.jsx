@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, } from 'react';
 import { 
   MessageSquare, 
   Globe, 
@@ -25,17 +25,16 @@ import {
   GraduationCap, 
   Rocket, 
   Lightbulb,
-  Plus, 
-  Minus, 
-  HelpCircle
+  Plus, Minus, HelpCircle
 } from 'lucide-react';
 import './App.css';
 import { useNavigate } from 'react-router-dom';
 import { AskExpertWidget } from './components/askexpert';
 import ContactSupport from './components/support';
 import InfoPage from './components/Infopage';
-
 export default function App() {
+
+
   const navigate = useNavigate();
   
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -48,39 +47,27 @@ export default function App() {
   const [activeComponent, setActiveComponent] = useState(null);
   const [currentPage, setCurrentPage] = useState('home');
   const [infoSection, setInfoSection] = useState(null);
-  
   // Refs for smooth scrolling
   const featuresRef = useRef(null);
   const aboutRef = useRef(null);
   const pricingRef = useRef(null);
   const contactRef = useRef(null);
-  const faqRef = useRef(null);
+  
 
-  // Redirect if logged in
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      navigate("/chat");
-    }
-  }, [navigate]);
+  if (darkMode) {
+    document.body.classList.add('dark');
+  } else {
+    document.body.classList.remove('dark');
+  }
+}, [darkMode]);
 
-  // Dark mode effect
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark');
-    } else {
-      document.body.classList.remove('dark');
-    }
-  }, [darkMode]);
-
-  // Scroll handler
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Auto-rotate features
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveFeature((prev) => (prev + 1) % 6);
@@ -107,7 +94,9 @@ export default function App() {
       { id: 5, type: 'received', text: '¡Sí! Es increíble hablar sin barreras', translation: 'Yes! It\'s incredible to talk without barriers', delay: 11000 }
     ];
 
+
     let timeouts = [];
+
 
     const showMessages = () => {
       messages.forEach((message) => {
@@ -132,10 +121,13 @@ export default function App() {
         setTimeout(showMessages, 1000);
       }, 14000);
 
+
       timeouts.push(resetTimeout);
     };
 
+
     showMessages();
+
 
     return () => {
       timeouts.forEach(clearTimeout);
@@ -152,7 +144,7 @@ export default function App() {
     {
       icon: Video,
       title: "4K Video Calls",
-      description: "Crystal-clear video calls with adaptive bandwidth for low latency",
+      description:"Crystal-clear video calls with adaptive bandwidth for low latency",
       color: "#059669"
     },
     {
@@ -180,42 +172,45 @@ export default function App() {
       color: "#0891B2"
     }
   ];
+    // Toggle FAQ item
+const toggleFaqItem = (index) => {
+  const newOpenItems = new Set(openItems);
+  if (newOpenItems.has(index)) {
+    newOpenItems.delete(index);
+  } else {
+    newOpenItems.add(index);
+  }
+  setOpenItems(newOpenItems);
+};
 
-  // Toggle FAQ item
-  const toggleFaqItem = (index) => {
-    const newOpenItems = new Set(openItems);
-    if (newOpenItems.has(index)) {
-      newOpenItems.delete(index);
-    } else {
-      newOpenItems.add(index);
-    }
-    setOpenItems(newOpenItems);
-  };
 
   const handleContactSupport = () => {
     setCurrentPage('support');
   };
 
+
   const handleNavigateBack = () => {
     setCurrentPage('home');
   };
+
 
   const handleNavigateHome = () => {
     setCurrentPage('home');
   };
 
+
   const handleNavigateToInfo = (section) => {
-    setInfoSection(section);
-    setCurrentPage('info');
-  };
+  setInfoSection(section);
+  setCurrentPage('info');
+};
 
-  const handleNavigateBackFromInfo = () => {
-    setCurrentPage('home');
-    setInfoSection(null);
-  };
 
+const handleNavigateBackFromInfo = () => {
+  setCurrentPage('home');
+  setInfoSection(null);
+};
   // Conditional rendering
-  if (currentPage === 'support') {
+   if (currentPage === 'support') {
     return (
       <ContactSupport 
         onNavigateBack={handleNavigateBack}
@@ -223,17 +218,15 @@ export default function App() {
       />
     );
   }
-  
   if (currentPage === 'info') {
-    return (
-      <InfoPage 
-        section={infoSection}
-        onNavigateBack={handleNavigateBackFromInfo}
-        onNavigateHome={handleNavigateHome}
-      />
-    );
-  }
-
+  return (
+    <InfoPage 
+      section={infoSection}
+      onNavigateBack={handleNavigateBackFromInfo}
+      onNavigateHome={handleNavigateHome}
+    />
+  );
+}
   const faqData = [
     {
       question: "How does the real-time translation feature work?",
@@ -276,7 +269,6 @@ export default function App() {
       answer: "Yes, premium users can enable automatic cloud backup of their chat history. Backups are encrypted and can be restored when switching devices. You can also export specific conversations as encrypted files for local storage."
     }
   ];
-
   const stats = [
     { number: "50M+", label: "Active Users" },
     { number: "185+", label: "Countries" },
@@ -284,35 +276,37 @@ export default function App() {
     { number: "500ms", label: "Avg Response" }
   ];
 
+
   const testimonials = [
     {
-      name: "Rohit Mehra",
-      role: "CEO, BharatTech Solutions",
-      avatar: "RM",
-      rating: 5,
-      text: "U&Me transformed how our team collaborates across cities. The real-time translation feature is truly a game-changer!"
-    },
-    {
-      name: "Ananya Iyer",
-      role: "Design Lead, Kreative Studio",
-      avatar: "AI",
-      rating: 5,
-      text: "The video quality is outstanding, and the interface feels so natural to use. Easily the best communication tool we've used."
-    },
-    {
-      name: "Siddharth Verma",
-      role: "Founder, Innovana Startups",
-      avatar: "SV",
-      rating: 5,
-      text: "It's the perfect blend of speed and security. We can now discuss sensitive ideas with full confidence."
-    }
+  name: "Rohit Mehra",
+  role: "CEO, BharatTech Solutions",
+  avatar: "RM",
+  rating: 5,
+  text: "U&Me transformed how our team collaborates across cities. The real-time translation feature is truly a game-changer!"
+},
+{
+  name: "Ananya Iyer",
+  role: "Design Lead, Kreative Studio",
+  avatar: "AI",
+  rating: 5,
+  text: "The video quality is outstanding, and the interface feels so natural to use. Easily the best communication tool we've used."
+},
+{
+  name: "Siddharth Verma",
+  role: "Founder, Innovana Startups",
+  avatar: "SV",
+  rating: 5,
+  text: "It's the perfect blend of speed and security. We can now discuss sensitive ideas with full confidence."
+}
+
+
   ];
-
   const transport = () => {
-    navigate('/login');
-  };
+    navigate('/login');}
 
-  const renderComponent = () => {
+
+      const renderComponent = () => {
     switch(activeComponent) {
       case 'AskExpertWidget':
         return <AskExpertWidget onClose={() => setActiveComponent(null)} />;
@@ -320,37 +314,37 @@ export default function App() {
         return null;
     }
   };
+const contactMethods = [
+  {
+    icon: GraduationCap,
+    title: "Ask an Expert",
+    detail: "Chat live with our support team for instant help",
+    action: () => setActiveComponent('AskExpertWidget'), // Will render the chat widget
+    type: 'component' // Indicates this renders a component
+  },
+  {
+    icon: Rocket,
+    title: "Start a Project",
+    detail: "Get a customized quote for your project needs",
+    action: () => navigate('/start-project'), // Will render StartProjectForm
+    type: 'route' // Indicates this uses React Router navigation
+  },
+  {
+    icon: MessageSquare,
+    title: "Send Feedback",
+    detail: "Help us improve by sharing your experience",
+    action: () => navigate('/feedback'), // Your existing feedback form
+    type: 'route'
+  },
+  {
+    icon: Lightbulb,
+    title: "Suggest a Feature",
+    detail: "Vote on or propose new features for U&Me",
+    action: () => navigate('/suggest-feature'), // Will render SuggestFeatureForm
+    type: 'route'
+  }
+];
 
-  const contactMethods = [
-    {
-      icon: GraduationCap,
-      title: "Ask an Expert",
-      detail: "Chat live with our support team for instant help",
-      action: () => setActiveComponent('AskExpertWidget'),
-      type: 'component'
-    },
-    {
-      icon: Rocket,
-      title: "Start a Project",
-      detail: "Get a customized quote for your project needs",
-      action: () => navigate('/start-project'),
-      type: 'route'
-    },
-    {
-      icon: MessageSquare,
-      title: "Send Feedback",
-      detail: "Help us improve by sharing your experience",
-      action: () => navigate('/feedback'),
-      type: 'route'
-    },
-    {
-      icon: Lightbulb,
-      title: "Suggest a Feature",
-      detail: "Vote on or propose new features for U&Me",
-      action: () => navigate('/suggest-feature'),
-      type: 'route'
-    }
-  ];
 
   return (
     <div className="app">
@@ -364,20 +358,21 @@ export default function App() {
           
           <div className={`nav-menu ${isMenuOpen ? 'active' : ''} `}>
             <button 
-              className="theme-toggle"
-              onClick={() => setDarkMode(!darkMode)}
-            >
-              <div className="theme-icon">
-                {darkMode ? <Moon size={16} /> : <Sun size={16} />}
-              </div>
-            </button>
+  className="theme-toggle"
+  onClick={() => setDarkMode(!darkMode)}
+>
+  <div className="theme-icon">
+    {darkMode ? <Moon size={16} /> : <Sun size={16} />}
+  </div>
+</button>
             <a href="#" onClick={() => smoothScroll(featuresRef)}>Home</a>
             <a href="#features" onClick={() => smoothScroll(featuresRef)}>Features</a>
             <a href="#about" onClick={() => smoothScroll(aboutRef)}>About</a>
             <a href="#contact" onClick={() => smoothScroll(contactRef)}>Contact</a>
             <a href="#faq" onClick={() => smoothScroll(faqRef)}>FAQ</a>
-            <button className="nav-cta" onClick={() => navigate('/register')}>Get Started</button>
+            <button className="nav-cta" onClick={()=>navigate('/register')}>Get Started</button>
           </div>
+
 
           <button 
             className="menu-toggle"
@@ -387,6 +382,7 @@ export default function App() {
           </button>
         </div>
       </nav>
+
 
       {/* Hero Section */}
       <section className="hero">
@@ -595,10 +591,12 @@ export default function App() {
               {contactMethods.map((method, index) => {
                 const Icon = method.icon;
                 return (
-                  <button 
+                  <a 
                     key={index} 
                     onClick={method.action} 
                     className="contact-card"
+                    target="_blank" 
+                    rel="noopener noreferrer"
                     style={{cursor: 'pointer'}}
                   >
                     <div className="contact-icon">
@@ -606,7 +604,7 @@ export default function App() {
                     </div>
                     <h3>{method.title}</h3>
                     <p>{method.detail}</p>
-                  </button>
+                  </a>
                 );
               })}
             </div>
@@ -614,63 +612,63 @@ export default function App() {
           {activeComponent && renderComponent()}
         </div>
       </section>
-
       {/* FAQ Section */}
-      <section className="faq" id="faq" ref={faqRef}>
-        <div className="container">
-          <div className="section-header">
-            <div className="faq-icon">
-              <HelpCircle size={48} />
-            </div>
-            <h2>Frequently Asked Questions</h2>
-            <p>Everything you need to know about U&Me</p>
-          </div>
+   <section className="faq" id="faq" >
+  <div className="container">
+    <div className="section-header">
+      <div className="faq-icon">
+        <HelpCircle size={48} />
+      </div>
+      <h2>Frequently Asked Questions</h2>
+      <p>Everything you need to know about U&Me</p>
+    </div>
 
-          <div className="faq-container">
-            <div className="faq-list">
-              {faqData.map((item, index) => (
-                <div 
-                  key={index} 
-                  className={`faq-item ${openItems.has(index) ? 'active' : ''}`}
-                >
-                  <button 
-                    className="faq-question"
-                    onClick={() => toggleFaqItem(index)}
-                    aria-expanded={openItems.has(index)}
-                  >
-                    <span className="question-text">{item.question}</span>
-                    <div className="faq-icon-toggle">
-                      {openItems.has(index) ? 
-                        <Minus size={20} /> : 
-                        <Plus size={20} />
-                      }
-                    </div>
-                  </button>
-                  
-                  <div className={`faq-answer ${openItems.has(index) ? 'expanded' : ''}`}>
-                    <div className="faq-answer-content">
-                      <p>{item.answer}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
 
-            <div className="faq-support">
-              <div className="support-card">
-                <h3>Still have questions?</h3>
-                <p>Our support team is here to help you get the most out of U&Me.</p>
-                <div className="support-actions">
-                  <button className="primary-btn" onClick={handleContactSupport}>
-                    Contact Support
-                  </button>
-                </div>
+    <div className="faq-container">
+      <div className="faq-list">
+        {faqData.map((item, index) => (
+          <div 
+            key={index} 
+            className={`faq-item ${openItems.has(index) ? 'active' : ''}`}
+          >
+            <button 
+              className="faq-question"
+              onClick={() => toggleFaqItem(index)}
+              aria-expanded={openItems.has(index)}
+            >
+              <span className="question-text">{item.question}</span>
+              <div className="faq-icon-toggle">
+                {openItems.has(index) ? 
+                  <Minus size={20} /> : 
+                  <Plus size={20} />
+                }
+              </div>
+            </button>
+            
+            <div className={`faq-answer ${openItems.has(index) ? 'expanded' : ''}`}>
+              <div className="faq-answer-content">
+                <p>{item.answer}</p>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        ))}
+      </div>
 
+
+      <div className="faq-support">
+        <div className="support-card">
+          <h3>Still have questions?</h3>
+          <p>Our support team is here to help you get the most out of U&Me.</p>
+          <div className="support-actions">
+            <button className="primary-btn" onClick={handleContactSupport}>
+              Contact Support
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
       {/* Footer */}
       <footer className="footer">
         <div className="container">
@@ -683,29 +681,29 @@ export default function App() {
               <p>Connecting the world through seamless communication</p>
             </div>
             
-            <div className="footer-links">
-              <div className="link-group">
-                <h4>Product</h4>
-                <a href="#features" onClick={() => smoothScroll(featuresRef)}>Features</a>
-                <a href="#pricing" onClick={() => handleNavigateToInfo('pricing')}>Pricing</a>
-                <a href="#" onClick={() => handleNavigateToInfo('security')}>Security</a>
-                <a href="#" onClick={() => handleNavigateToInfo('integrations')}>Integrations</a>
-              </div>
-              <div className="link-group">
-                <h4>Company</h4>
-                <a href="#about" onClick={() => smoothScroll(aboutRef)}>About</a>
-                <a href="#" onClick={() => handleNavigateToInfo('careers')}>Careers</a>
-                <a href="#" onClick={() => handleNavigateToInfo('press')}>Press</a>
-                <a href="#contact" onClick={handleContactSupport}>Contact</a>
-              </div>
-              <div className="link-group">
-                <h4>Support</h4>
-                <a href="#" onClick={() => handleNavigateToInfo('help-center')}>Help Center</a>
-                <a href="#" onClick={() => handleNavigateToInfo('community')}>Community</a>
-                <a href="#" onClick={() => handleNavigateToInfo('api-docs')}>API Docs</a>
-                <a href="#" onClick={() => handleNavigateToInfo('status')}>Status</a>
-              </div>
-            </div>
+           <div className="footer-links">
+  <div className="link-group">
+    <h4>Product</h4>
+    <a href="#features" onClick={() => smoothScroll(featuresRef)}>Features</a>
+    <a href="#pricing" onClick={() => handleNavigateToInfo('pricing')}>Pricing</a>
+    <a href="#" onClick={() => handleNavigateToInfo('security')}>Security</a>
+    <a href="#" onClick={() => handleNavigateToInfo('integrations')}>Integrations</a>
+  </div>
+  <div className="link-group">
+    <h4>Company</h4>
+    <a href="#about" onClick={() => smoothScroll(aboutRef)}>About</a>
+    <a href="#" onClick={() => handleNavigateToInfo('careers')}>Careers</a>
+    <a href="#" onClick={() => handleNavigateToInfo('press')}>Press</a>
+    <a href="#contact" onClick={handleContactSupport}>Contact</a>
+  </div>
+  <div className="link-group">
+    <h4>Support</h4>
+    <a href="#" onClick={() => handleNavigateToInfo('help-center')}>Help Center</a>
+    <a href="#" onClick={() => handleNavigateToInfo('community')}>Community</a>
+    <a href="#" onClick={() => handleNavigateToInfo('api-docs')}>API Docs</a>
+    <a href="#" onClick={() => handleNavigateToInfo('status')}>Status</a>
+  </div>
+</div>
           </div>
           
           <div className="footer-bottom">
