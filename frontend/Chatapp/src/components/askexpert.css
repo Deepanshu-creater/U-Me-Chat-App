@@ -1,0 +1,111 @@
+/* Container */
+.aew-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+}
+
+/* Toggle Button */
+.aew-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background-color: #6a21a5;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(106, 33, 165, 0.3);
+}
+
+/* Chat Window */
+.aew-chat-window {
+  width: 350px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.aew-chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #6a21a5;
+  color: white;
+}
+
+.aew-chat-title {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.aew-close-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+/* Messages */
+.aew-messages-container {
+  height: 300px;
+  padding: 1rem;
+  overflow-y: auto;
+  background: #f9f0ff;
+}
+
+.aew-message {
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  max-width: 80%;
+  font-size: 0.9rem;
+}
+
+.aew-message.aew-user {
+  background: #6a21a5;
+  color: white;
+  margin-left: auto;
+}
+
+.aew-message.aew-agent {
+  background: #e8daef;
+  color: #333;
+  margin-right: auto;
+}
+
+.aew-welcome-msg {
+  text-align: center;
+  color: #6a21a5;
+  padding: 1rem 0;
+}
+
+/* Input Area */
+.aew-input-area {
+  display: flex;
+  padding: 0.75rem;
+  border-top: 1px solid #eee;
+  background: white;
+}
+
+.aew-text-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #d2b4de;
+  border-radius: 8px;
+  margin-right: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.aew-send-btn {
+  background: #6a21a5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0 0.75rem;
+  cursor: pointer;
+}

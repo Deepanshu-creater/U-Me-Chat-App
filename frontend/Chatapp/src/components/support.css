@@ -1,0 +1,288 @@
+/* Contact Support Container */
+.cs-container {
+  min-height: 100vh;
+  background: #f9f0ff; /* Light purple background */
+  padding: 2rem 0;
+}
+
+.cs-content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Header Styles */
+.cs-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #d8b4fe; /* Light purple border */
+}
+
+.cs-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #e9d5ff; /* Light purple */
+  border: 1px solid #c084fc; /* Medium purple */
+  border-radius: 0.5rem;
+  color: #6b21a8; /* Dark purple text */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.cs-back-btn:hover {
+  background: #d8b4fe; /* Medium purple */
+}
+
+.cs-title {
+  font-size: 2rem;
+  margin: 0;
+  color: #6b21a8; /* Dark purple */
+}
+
+.cs-subtitle {
+  margin: 0.5rem 0 0;
+  color: #7e3af2; /* Vibrant purple */
+}
+
+/* Channels Section */
+.cs-channels-section {
+  margin-bottom: 2rem;
+}
+
+.cs-section-title {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: #6b21a8; /* Dark purple */
+}
+
+.cs-channels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.cs-channel-card {
+  background: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  border: 1px solid #e9d5ff; /* Light purple border */
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(123, 52, 246, 0.1); /* Purple shadow */
+}
+
+.cs-channel-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(123, 52, 246, 0.15); /* Deeper purple shadow */
+}
+
+.cs-channel-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: #f3e8ff; /* Very light purple */
+  color: #7e3af2; /* Vibrant purple */
+  border-radius: 50%;
+  margin-bottom: 1rem;
+}
+
+.cs-channel-title {
+  font-size: 1.125rem;
+  margin: 0 0 0.5rem;
+  color: #6b21a8; /* Dark purple */
+}
+
+.cs-channel-desc {
+  margin: 0 0 1rem;
+  color: #7c3aed; /* Medium purple */
+  font-size: 0.875rem;
+}
+
+.cs-channel-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #8b5cf6; /* Light vibrant purple */
+}
+
+/* Form Styles */
+.cs-form-section {
+  margin-top: 2rem;
+}
+
+.cs-form-container {
+  background: white;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  border: 1px solid #e9d5ff; /* Light purple border */
+  box-shadow: 0 2px 8px rgba(123, 52, 246, 0.1); /* Purple shadow */
+}
+
+.cs-form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #6b21a8; /* Dark purple */
+}
+
+.cs-form-input,
+.cs-form-select,
+.cs-form-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d8b4fe; /* Medium purple border */
+  border-radius: 0.375rem;
+  background: #faf5ff; /* Very light purple background */
+  color: #6b21a8; /* Dark purple text */
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.cs-form-input:focus,
+.cs-form-select:focus,
+.cs-form-textarea:focus {
+  outline: none;
+  border-color: #7e3af2; /* Vibrant purple */
+  box-shadow: 0 0 0 3px #e9d5ff; /* Light purple glow */
+}
+
+.cs-form-textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.cs-error {
+  border-color: #ef4444 !important; /* Red for errors */
+}
+
+.cs-error-msg {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #ef4444; /* Red */
+}
+
+.cs-char-count {
+  text-align: right;
+  font-size: 0.75rem;
+  color: #8b5cf6; /* Light vibrant purple */
+  margin-top: 0.25rem;
+}
+
+/* Priority Options */
+.cs-priority-options {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.cs-priority-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  background: #faf5ff; /* Very light purple */
+  border: 1px solid #e9d5ff; /* Light purple border */
+  cursor: pointer;
+}
+
+.cs-priority-option input:checked + .cs-priority-indicator {
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #7e3af2; /* Vibrant purple ring */
+}
+
+/* File Upload */
+.cs-file-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem;
+  border: 2px dashed #d8b4fe; /* Medium purple dashed */
+  border-radius: 0.375rem;
+  background: #faf5ff; /* Very light purple */
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cs-file-label:hover {
+  border-color: #7e3af2; /* Vibrant purple */
+  background: #f3e8ff; /* Light purple */
+}
+
+/* Attachments List */
+.cs-attachment-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #f3e8ff; /* Light purple */
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.cs-remove-attachment:hover {
+  color: #7e3af2; /* Vibrant purple */
+}
+
+/* Buttons */
+.cs-primary-btn {
+  background: #7e3af2; /* Vibrant purple */
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cs-primary-btn:hover {
+  background: #6b21a8; /* Dark purple */
+}
+
+.cs-secondary-btn {
+  background: white;
+  color: #7e3af2; /* Vibrant purple */
+  border: 1px solid #7e3af2; /* Vibrant purple */
+  border-radius: 0.375rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cs-secondary-btn:hover {
+  background: #f3e8ff; /* Light purple */
+}
+
+/* Success State */
+.cs-success-container {
+  background: white;
+  border: 1px solid #e9d5ff; /* Light purple border */
+  box-shadow: 0 4px 12px rgba(123, 52, 246, 0.1); /* Purple shadow */
+}
+
+.cs-success-icon {
+  color: #7e3af2; /* Vibrant purple */
+}
+
+.cs-success-title {
+  color: #6b21a8; /* Dark purple */
+}
+
+.cs-success-details {
+  background: #faf5ff; /* Very light purple */
+  border: 1px solid #e9d5ff; /* Light purple border */
+}

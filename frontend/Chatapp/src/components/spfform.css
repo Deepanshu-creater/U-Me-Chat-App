@@ -1,0 +1,105 @@
+/* Container */
+.spf-form-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(106, 33, 165, 0.1);
+}
+
+/* Header */
+.spf-form-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.spf-form-title {
+  margin: 0;
+  color: #6a21a5;
+}
+
+/* Form Elements */
+.spf-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.spf-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.spf-form-label {
+  font-weight: 600;
+  color: #6a21a5;
+  font-size: 0.9rem;
+}
+
+.spf-form-input,
+.spf-form-select,
+.spf-form-textarea {
+  padding: 0.75rem;
+  border: 2px solid #d2b4de;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.spf-form-input:focus,
+.spf-form-select:focus,
+.spf-form-textarea:focus {
+  outline: none;
+  border-color: #6a21a5;
+  box-shadow: 0 0 0 3px rgba(106, 33, 165, 0.2);
+}
+
+.spf-form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.spf-form-col {
+  flex: 1;
+}
+
+.spf-form-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Submit Button */
+.spf-submit-btn {
+  padding: 0.75rem 1.5rem;
+  background-color: #6a21a5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.spf-submit-btn:hover {
+  background-color: #8e44ad;
+}
+
+/* Success State */
+.spf-success-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.spf-success-title {
+  color: #6a21a5;
+  margin: 1rem 0 0.5rem;
+}
+
+.spf-success-message {
+  color: #666;
+  line-height: 1.6;
+}

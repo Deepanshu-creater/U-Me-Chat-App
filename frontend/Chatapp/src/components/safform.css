@@ -1,0 +1,216 @@
+/* Container */
+.sff-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(106, 33, 165, 0.1);
+  position: relative;
+}
+
+/* Header */
+.sff-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.sff-title {
+  margin: 0;
+  color: #6a21a5;
+  font-size: 1.5rem;
+}
+
+.sff-close-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: none;
+  border: none;
+  color: #6a21a5;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+}
+
+.sff-close-btn:hover {
+  background: #f3e8ff;
+}
+
+/* Form Elements */
+.sff-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.sff-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sff-form-label {
+  font-weight: 600;
+  color: #6a21a5;
+  font-size: 0.9rem;
+}
+
+.sff-form-input,
+.sff-form-select,
+.sff-form-textarea {
+  padding: 0.75rem;
+  border: 2px solid #d2b4de;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s;
+  background: #faf5ff;
+}
+
+.sff-form-input:focus,
+.sff-form-select:focus,
+.sff-form-textarea:focus {
+  outline: none;
+  border-color: #6a21a5;
+  box-shadow: 0 0 0 3px rgba(106, 33, 165, 0.2);
+}
+
+.sff-form-textarea {
+  resize: vertical;
+  min-height: 150px;
+}
+
+.sff-error {
+  border-color: #ef4444 !important;
+}
+
+.sff-error-message {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.sff-form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.sff-form-row .sff-form-group {
+  flex: 1;
+}
+
+/* Footer */
+.sff-form-footer {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.sff-submit-btn {
+  padding: 0.75rem 1.5rem;
+  background-color: #6a21a5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sff-submit-btn:hover {
+  background-color: #8e44ad;
+}
+
+/* Success State */
+.sff-success-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.sff-success-title {
+  color: #6a21a5;
+  margin: 1rem 0 0.5rem;
+  font-size: 1.5rem;
+}
+
+.sff-success-message {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.sff-success-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.sff-primary-btn {
+  padding: 0.75rem 1.5rem;
+  background-color: #6a21a5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sff-primary-btn:hover {
+  background-color: #8e44ad;
+}
+/* Add these new styles to your existing safform.css */
+
+/* Complexity Options */
+.sff-complexity-options {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.sff-complexity-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f3e8ff;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sff-complexity-option:hover {
+  background: #e9d5ff;
+}
+
+.sff-complexity-option input {
+  display: none;
+}
+
+.sff-complexity-indicator {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px #d8b4fe;
+}
+
+.sff-complexity-option input:checked + .sff-complexity-indicator {
+  box-shadow: 0 0 0 2px #6a21a5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .sff-form-row {
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  
+  .sff-complexity-options {
+    flex-wrap: wrap;
+  }
+}
