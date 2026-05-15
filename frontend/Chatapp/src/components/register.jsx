@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, ArrowRight, Smartphone, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-<<<<<<< HEAD
-=======
 import { SimpleToast } from './SimpleToast';
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
 import './register.css';
 import axios from 'axios';
 
 export default function Register() {
-<<<<<<< HEAD
-=======
     const [toast, setToast] = useState(null);
   
   const showToast = (message, type, progress) => {
@@ -21,7 +16,6 @@ export default function Register() {
     setToast(null);
   };
 
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
@@ -30,10 +24,7 @@ export default function Register() {
     password: '',
     confirmPassword: '',
   });
-<<<<<<< HEAD
-=======
   const SOCKET_URL = "https://u-me-chat-app.onrender.com";
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -119,30 +110,21 @@ const handleSubmit = (e) => {
 
     // 3. API CALL ONLY RUNS IF VALIDATION PASSES
     try {
-<<<<<<< HEAD
-      axios.post('http://localhost:3001/register', formData)
-        .then(response => {
-          console.log("Registration successful:", response.data);
-=======
       axios.post(`${SOCKET_URL}/register`, formData)
         .then(response => {
           console.log("Registration successful:", response.data);
            clearInterval(progressInterval);
           showToast('Account created successfully!', 'success', 100);
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
           localStorage.setItem("username", response.data.user.username);
           navigate('/login'); // ✅ Navigate to chat on success
         })
         .catch(error => {
           console.error("Registration error:", error);
-<<<<<<< HEAD
-=======
           clearInterval(progressInterval);
         showToast(
           error.response?.data?.message || 'Registration failed', 
           'error'
         );
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
           setIsSubmitting(false); // ✅ Reset loading state on error
 
           if (error.response && error.response.data && error.response.data.message) {
@@ -158,8 +140,6 @@ const handleSubmit = (e) => {
       setIsSubmitting(false);
       alert("Unexpected error occurred.");
     }
-<<<<<<< HEAD
-=======
 
       showToast('Creating your account...', 'progress', 0);
 
@@ -170,7 +150,6 @@ const handleSubmit = (e) => {
         progress: Math.min((prev?.progress || 0) + 10, 90)
       }));
     }, 300);
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
 };
 
   return (
@@ -196,10 +175,7 @@ const handleSubmit = (e) => {
                 placeholder="John@123"
                 value={formData.username}
                 onChange={handleChange}
-<<<<<<< HEAD
-=======
                 style={{ color: 'black' }}
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
               />
             </div>
             {errors.username && (
@@ -218,10 +194,7 @@ const handleSubmit = (e) => {
               placeholder="your@email.com"
               value={formData.email}
               onChange={handleChange}
-<<<<<<< HEAD
-=======
               style={{ color: 'black' }}
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
             />
           </div>
           {errors.email && <span className="error-message">{errors.email}</span>}
@@ -237,10 +210,7 @@ const handleSubmit = (e) => {
               placeholder="+1 (555) 123-4567"
               value={formData.phone}
               onChange={handleChange}
-<<<<<<< HEAD
-=======
               style={{ color: 'black' }}
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
             />
           </div>
           {errors.phone && <span className="error-message">{errors.phone}</span>}
@@ -257,10 +227,7 @@ const handleSubmit = (e) => {
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={handleChange}
-<<<<<<< HEAD
-=======
                 style={{ color: 'black' }}
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
               />
               <button
                 type="button"
@@ -285,10 +252,7 @@ const handleSubmit = (e) => {
                 placeholder="••••••••"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-<<<<<<< HEAD
-=======
                 style={{ color: 'black' }}
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
               />
               <button
                 type="button"
@@ -322,11 +286,6 @@ const handleSubmit = (e) => {
         Already have an account?{' '}
         <button onClick={() => navigate('/login')}>Sign In</button>
       </div>
-<<<<<<< HEAD
-    </div>
-  );
-}
-=======
       {toast && (
         <SimpleToast
           message={toast.message}
@@ -338,4 +297,3 @@ const handleSubmit = (e) => {
     </div>
   );
 }
->>>>>>> f71df190e18281f2f16661fb65e5d89f76e6c66b
